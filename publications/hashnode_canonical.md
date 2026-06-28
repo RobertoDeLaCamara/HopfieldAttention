@@ -9,7 +9,7 @@ canonical: hashnode
 
 # De Hopfield Networks a Transformers: 25 Años de Optimización a Atención
 
-En 1998, siendo estudiante de Ingeniería de Telecomunicación en Valladolid, escribí mi tesis sobre la aplicación de Hopfield Neural Networks al Shortest Path Problem. Veintisiete años después, el mismo mecanismo matemático — con mejores funciones de activación, matrices de proyección aprendidas, y escalabilidad gracias a GPUs — impulsa los sistemas de inteligencia artificial más avanzados del mundo.
+En 1998, siendo estudiante de Ingeniería de Telecomunicación en Valladolid, escribí mi tesis sobre la aplicación de Hopfield Neural Networks al Shortest Path Problem. Veintisiete años después, el mismo mecanismo matemático, con mejores funciones de activación, matrices de proyección aprendidas, y escalabilidad gracias a GPUs, impulsa los sistemas de inteligencia artificial más avanzados del mundo.
 
 La afirmación central de este artículo es directa:
 
@@ -40,7 +40,7 @@ El Shortest Path Problem (SPP) es fundamental en redes de telecomunicación. La 
 - **Intermedios**: flujo entrante = flujo saliente
 - **Costo**: minimizar $\sum C[i][j] \cdot V[i][j]$
 
-La red minimizaba la energía total mediante gradiente descendente. **Funcionaba** — para grafos pequeños (<20 nodos), encontraba caminos válidos. Pero:
+La red minimizaba la energía total mediante gradiente descendente. **Funcionaba**: para grafos pequeños (<20 nodos), encontraba caminos válidos. Pero:
 - Fiabilidad del 40-60%
 - Dependencia crítica de hiperparámetros
 - Sin escalabilidad más allá de 50 nodos
@@ -133,7 +133,7 @@ En telecomunicaciones, aplicaciones concretas: detección de anomalías (patrone
 
 ## La Conexión Personal
 
-En 1998, implementé una Hopfield Network para caminos mínimos. Convergía lentamente, era poco fiable, escalaba mal. Veinticinco años después, el mismo mecanismo — con softmax, proyecciones aprendidas, y GPUs — impulsa la IA moderna.
+En 1998, implementé una Hopfield Network para caminos mínimos. Convergía lentamente, era poco fiable, escalaba mal. Veinticinco años después, el mismo mecanismo, con softmax, proyecciones aprendidas y GPUs, impulsa la IA moderna.
 
 La diferencia no fue la idea. Fue la ingeniería:
 - Mejores funciones de activación (softmax vs. sigmoide)
@@ -147,11 +147,11 @@ La Hopfield Network de 1982, que parecía un callejón sin salida, resultó ser 
 
 ## Demo Interactiva
 
-[![Open in HF Spaces](https://img.shields.io/badge/🤗%20Open%20in-HF%20Spaces-FFD21E)](https://huggingface.co/spaces/...) ← *próximamente*
+[![Open in HF Spaces](https://img.shields.io/badge/🤗%20Open%20in-HF%20Spaces-FFD21E)](https://huggingface.co/spaces/RobertoDeLaCamara/HopfieldAttention)
 
 El código y todos los capítulos están en GitHub:  
 [![GitHub](https://img.shields.io/badge/GitHub-HopfieldAttention-181717)](https://github.com/RobertoDeLaCamara/HopfieldAttention)
 
 ---
 
-*Roberto de la Cámara — Senior Technical Product Manager en Ericsson, especializado en transformación AI-native de Core Networks 5G. Tesis universitaria (1998): Hopfield Neural Network para el Shortest Path Problem.*
+*Roberto de la Cámara. Tesis universitaria (1998): Hopfield Neural Network para el Shortest Path Problem. El código, el dashboard interactivo y los 7 capítulos completos: [github.com/RobertoDeLaCamara/HopfieldAttention](https://github.com/RobertoDeLaCamara/HopfieldAttention).*
