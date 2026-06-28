@@ -1,7 +1,6 @@
 import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 st.set_page_config(page_title="HopfieldAttention", layout="wide")
 st.title("🧠 HopfieldAttention: La Conexión Hopfield ↔ Attention")
@@ -100,7 +99,7 @@ with col1:
 with col2:
     st.subheader("🟠 Como Transformer Attention")
     st.markdown("""
-    **Atención:** $\text{softmax}\left(\\frac{Q K^T}{\sqrt{d_k}}\right) V$
+    **Atención:** $\\text{softmax}\\left(\\frac{Q K^T}{\\sqrt{d_k}}\\right) V$
     """)
 
     # Similarity heatmap
@@ -195,16 +194,12 @@ recovery_error = np.linalg.norm(new_state - clean_state)
 attention_entropy = -np.sum(attn_weights * np.log(attn_weights + 1e-10))
 
 st.divider()
-m1, m2, m3 = st.metric(
-    "Error de recuperación vs patrón limpio",
-    f"{recovery_error:.4f}",
-    delta=None,
-)
-
-m2, m3 = st.columns(2)
-with m2:
+col_m1, col_m2, col_m3 = st.columns(3)
+with col_m1:
+    st.metric("Error de recuperación vs patrón limpio", f"{recovery_error:.4f}")
+with col_m2:
     st.metric("Entropía de atención", f"{attention_entropy:.3f}")
-with m3:
+with col_m3:
     st.metric("Temperatura β", f"{temperature:.1f}")
 
 st.caption("Cuando la entropía es baja → atención enfocada en un patrón | Cuando es alta → atención difusa entre varios patrones")
