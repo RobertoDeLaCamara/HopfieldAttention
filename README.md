@@ -21,7 +21,7 @@ license: mit
 
 **From Hopfield Networks (1982) to Transformers (2017): the mathematical bridge, traced across 7 articles.**
 
-[**Interactive Demo**](https://huggingface.co/spaces/RobertoDeLaCamara/HopfieldAttention) · [Articles](articles/) · [Bridge Code](bridge/)
+[**Interactive Demo**](https://huggingface.co/spaces/Bobcamgardo/HopfieldAttention) · [Articles](articles/) · [Bridge Code](bridge/)
 
 The attention mechanism in Transformers is, mathematically, a single-step Hopfield update with softmax as activation. This project traces that connection from first principles — starting with Hopfield's 1982 energy function, through a 1998 university thesis on shortest path problems, to Ramsauer et al. (2021) and modern LLMs.
 
@@ -84,7 +84,7 @@ pip install -r dashboard/requirements.txt
 streamlit run dashboard/app.py
 ```
 
-Or use the [live demo on HuggingFace Spaces](https://huggingface.co/spaces/RobertoDeLaCamara/HopfieldAttention).
+Or use the [live demo on HuggingFace Spaces](https://huggingface.co/spaces/Bobcamgardo/HopfieldAttention).
 
 Adjust temperature β, number of stored patterns, and noise level — and see in real time how the Hopfield update and the attention mechanism produce identical outputs.
 

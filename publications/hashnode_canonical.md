@@ -147,7 +147,7 @@ The 1982 Hopfield Network, which seemed like a dead end, turned out to be the em
 
 ## Interactive Demo
 
-[![Open in HF Spaces](https://img.shields.io/badge/🤗%20Open%20in-HF%20Spaces-FFD21E)](https://huggingface.co/spaces/RobertoDeLaCamara/HopfieldAttention)
+[![Open in HF Spaces](https://img.shields.io/badge/🤗%20Open%20in-HF%20Spaces-FFD21E)](https://huggingface.co/spaces/Bobcamgardo/HopfieldAttention)
 
 The code and all chapters are on GitHub:
 [![GitHub](https://img.shields.io/badge/GitHub-HopfieldAttention-181717)](https://github.com/RobertoDeLaCamara/HopfieldAttention)
