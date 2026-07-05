@@ -1,25 +1,25 @@
 """
 hopfield_attention_bridge.py
 
-Demuestra la equivalencia formal entre una actualización de Hopfield Network
-y el mecanismo de atención de un Transformer.
+Demonstrates the formal equivalence between a Hopfield Network update
+and a Transformer's attention mechanism.
 
-La tesis: Attention(Q, K, V) = softmax(Q·K^T / √d) · V
-es idéntica a:     V_new = softmax(β · Ξ · V) · Ξ
+The thesis: Attention(Q, K, V) = softmax(Q·K^T / √d) · V
+is identical to:  V_new = softmax(β · Ξ · V) · Ξ
 
-Donde:
-  Q ~ V (estado actual / query)
-  K ~ Ξ (patrones almacenados / keys)
-  V ~ Ξ (valores = mismos patrones en Hopfield, proyectados en attention)
-  β ~ 1/√d (temperatura ~ factor de escala)
+Where:
+  Q ~ V (current state / query)
+  K ~ Ξ (stored patterns / keys)
+  V ~ Ξ (values = same patterns in Hopfield, projected in attention)
+  β ~ 1/√d (temperature ~ scaling factor)
 """
 
 import numpy as np
 
 
 class HopfieldAttention:
-    """Una capa que implementa la misma operación interpretable como
-    Hopfield Network o como Attention.
+    """A layer that implements the same operation, interpretable as
+    either a Hopfield Network or Attention.
 
     Hopfield view:
         V_new = softmax(β · store · V) · store
@@ -32,30 +32,30 @@ class HopfieldAttention:
         self.dim = dim
         self.beta = beta
 
-        # En Hopfield: los patrones almacenados
-        # En Attention: las keys/values proyectados
+        # In Hopfield: the stored patterns
+        # In Attention: the projected keys/values
         self.store = np.random.randn(dim, dim).astype(np.float32)
         self.store /= np.linalg.norm(self.store, axis=1, keepdims=True)
 
     def hopfield_update(self, state: np.ndarray) -> np.ndarray:
-        """Actualización como Hopfield Network.
+        """Update as a Hopfield Network.
         V_new = softmax(β · Ξ · V) · Ξ
         """
-        # Similitud entre estado actual y patrones almacenados
+        # Similarity between the current state and the stored patterns
         sims = self.beta * self.store @ state  # (dim,)
 
-        # Normalización softmax
+        # Softmax normalization
         weights = np.exp(sims - np.max(sims))
         weights /= np.sum(weights)  # (dim,)
 
-        # Nuevo estado = combinación ponderada de patrones
+        # New state = weighted combination of patterns
         new_state = weights @ self.store  # (dim,)
         return new_state
 
     def attention_forward(
         self, query: np.ndarray, keys: np.ndarray, values: np.ndarray
     ) -> np.ndarray:
-        """Atención estándar: softmax(Q·K^T / √d) · V"""
+        """Standard attention: softmax(Q·K^T / √d) · V"""
         scale = np.sqrt(keys.shape[-1])
         sims = (query @ keys.T) / scale  # (n_keys,)
         weights = np.exp(sims - np.max(sims))
@@ -64,11 +64,11 @@ class HopfieldAttention:
         return output
 
     def attention_as_hopfield(self, state: np.ndarray) -> np.ndarray:
-        """Atención configurada para ser idéntica a Hopfield.
-        Q = state (el estado actual)
-        K = store (los patrones almacenados)
-        V = store (los mismos patrones como valores)
-        scale = 1/β (temperatura inversa como factor de escala)
+        """Attention configured to be identical to Hopfield.
+        Q = state (the current state)
+        K = store (the stored patterns)
+        V = store (the same patterns as values)
+        scale = 1/β (inverse temperature as scaling factor)
         """
         # β = 1/√d ---> d = 1/β²
         scale = 1.0 / self.beta if self.beta > 0 else 1.0
@@ -79,16 +79,16 @@ class HopfieldAttention:
         return output
 
     def energy(self, state: np.ndarray) -> float:
-        """Energía de Modern Hopfield: E = -logsumexp(β · ξ · V)"""
+        """Modern Hopfield energy: E = -logsumexp(β · ξ · V)"""
         sims = self.beta * self.store @ state
         logsumexp = np.log(np.sum(np.exp(sims)))
         return -logsumexp
 
     def compare(self, state: np.ndarray) -> dict:
-        """Compara Hopfield update vs Attention forward con apples-to-apples."""
+        """Compares the Hopfield update vs the Attention forward pass apples-to-apples."""
         hopfield_result = self.hopfield_update(state)
 
-        # Attention equivalente: Q=state, K=store, V=store, scale=1/β
+        # Equivalent attention: Q=state, K=store, V=store, scale=1/β
         attn_result = self.attention_as_hopfield(state)
 
         diff = np.linalg.norm(hopfield_result - attn_result)
@@ -103,7 +103,7 @@ class HopfieldAttention:
 
 
 def test_equivalence():
-    """Verifica que Hopfield update y Attention forward producen el mismo resultado."""
+    """Verifies that the Hopfield update and the Attention forward pass produce the same result."""
     dim = 16
     layer = HopfieldAttention(dim=dim, beta=2.0)
 
@@ -113,15 +113,15 @@ def test_equivalence():
     result = layer.compare(state)
 
     assert result["are_identical"], (
-        f"Hopfield y Attention deberían ser idénticos. "
-        f"Diferencia: {result['difference_norm']:.2e}"
+        f"Hopfield and Attention should be identical. "
+        f"Difference: {result['difference_norm']:.2e}"
     )
-    print(f"✅ Equivalencia verificada. Energía: {result['energy']:.4f}")
-    print(f"   Diferencia máxima: {result['difference_norm']:.2e}")
+    print(f"✅ Equivalence verified. Energy: {result['energy']:.4f}")
+    print(f"   Max difference: {result['difference_norm']:.2e}")
 
 
 def test_different_states():
-    """Prueba con múltiples estados iniciales."""
+    """Tests with multiple initial states."""
     dim = 8
     layer = HopfieldAttention(dim=dim, beta=1.5)
 
@@ -132,15 +132,15 @@ def test_different_states():
         result = layer.compare(state)
 
         assert result["are_identical"], (
-            f"Falló en estado {i}. Diferencia: {result['difference_norm']:.2e}"
+            f"Failed on state {i}. Difference: {result['difference_norm']:.2e}"
         )
 
-    print(f"✅ {10} estados diferentes verificados. "
-          f"Energías range: OK")
+    print(f"✅ {10} different states verified. "
+          f"Energy range: OK")
 
 
 def test_temperature_effect():
-    """Verifica que la temperatura afecta la distribución de atención."""
+    """Verifies that temperature affects the attention distribution."""
     dim = 8
     state = np.random.randn(dim).astype(np.float32)
     state /= np.linalg.norm(state)
@@ -149,21 +149,21 @@ def test_temperature_effect():
         layer = HopfieldAttention(dim=dim, beta=beta)
         h = layer.hopfield_update(state)
 
-        # Calcular entropía de la distribución de pesos
+        # Compute the entropy of the weight distribution
         sims = beta * layer.store @ state
         weights = np.exp(sims - np.max(sims))
         weights /= np.sum(weights)
         entropy = -np.sum(weights * np.log(weights + 1e-10))
 
-        print(f"   β={beta:.1f} → entropía={entropy:.3f}")
+        print(f"   β={beta:.1f} → entropy={entropy:.3f}")
 
-    # β alto → entropía baja (atención enfocada)
-    # β bajo → entropía alta (atención difusa)
-    print("✅ Efecto de temperatura verificado")
+    # High β → low entropy (focused attention)
+    # Low β → high entropy (diffuse attention)
+    print("✅ Temperature effect verified")
 
 
 def test_convergence():
-    """Verifica que la iteración repetida converge (energía se estabiliza)."""
+    """Verifies that repeated iteration converges (energy stabilizes)."""
     dim = 8
     layer = HopfieldAttention(dim=dim, beta=2.0)
 
@@ -178,17 +178,17 @@ def test_convergence():
             break
         state = new_state
 
-    # Las últimas dos energías deberían ser casi iguales (convergencia)
+    # The last two energy values should be nearly equal (convergence)
     assert abs(energies[-1] - energies[-2]) < 1e-3, (
-        f"No convergió: {energies[-2]:.4f} → {energies[-1]:.4f}"
+        f"Did not converge: {energies[-2]:.4f} → {energies[-1]:.4f}"
     )
-    print(f"✅ Convergencia verificada ({len(energies)} pasos, "
-          f"{len(set(round(e, 2) for e in energies))} valores únicos de energía)")
+    print(f"✅ Convergence verified ({len(energies)} steps, "
+          f"{len(set(round(e, 2) for e in energies))} unique energy values)")
 
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("HopfieldAttention — Prueba de Equivalencia Formal")
+    print("HopfieldAttention — Formal Equivalence Test")
     print("=" * 60)
     print()
 
@@ -199,6 +199,6 @@ if __name__ == "__main__":
 
     print()
     print("=" * 60)
-    print("✅ Todas las pruebas pasaron.")
-    print("La equivalencia Hopfield ↔ Attention está verificada.")
+    print("✅ All tests passed.")
+    print("The Hopfield ↔ Attention equivalence is verified.")
     print("=" * 60)

@@ -1,30 +1,30 @@
 ---
-title: "De mi tesis de 1998 a Transformers: 25 años, 7 correcciones, una conexión inesperada"
+title: "From My 1998 Thesis to Transformers: 25 Years, 7 Fixes, One Unexpected Connection"
 date: 2026-05-11
 author: "Roberto de la Cámara"
 tags: [hopfield-networks, transformers, attention, personal-story, history-of-ml, neural-networks]
 platforms: [devto]
 ---
 
-# De mi tesis de 1998 a Transformers: 25 años, 7 correcciones, una conexión inesperada
+# From My 1998 Thesis to Transformers: 25 Years, 7 Fixes, One Unexpected Connection
 
-En 1998 estaba en mi último año de carrera, sentado frente a un monitor CRT, debugando una red neuronal que se negaba a converger. Mi tesis: aplicar Hopfield Networks al problema del camino más corto.
+In 1998 I was in my final year of college, sitting in front of a CRT monitor, debugging a neural network that refused to converge. My thesis: applying Hopfield Networks to the shortest path problem.
 
-La red funcionaba a veces. El 40-60% de las veces. Y cuando fallaba, no sabía por qué.
+The network worked sometimes. 40-60% of the time. And when it failed, I didn't know why.
 
-Veinticinco años después, trabajo definiendo la estrategia AI-native para Core Networks 5G en Ericsson. Y un día, revisando el mecanismo de atención de los Transformers, me di cuenta de algo que me dejó helado:
+Twenty-five years later, I work defining the AI-native strategy for 5G Core Networks at Ericsson. And one day, reviewing the attention mechanism in Transformers, I realized something that stopped me cold:
 
-**La atención de un Transformer y la actualización de una Hopfield Network son la misma operación matemática.**
+**A Transformer's attention and a Hopfield Network's state update are the same mathematical operation.**
 
-No "inspiradas en". No "relacionadas con". La misma.
+Not "inspired by." Not "related to." The same.
 
 ---
 
-## El momento "aha"
+## The "aha" moment
 
-Mira estas dos fórmulas:
+Look at these two formulas:
 
-**Hopfield Network (moderna):**
+**Hopfield Network (modern):**
 ```
 V_new = softmax(β · Ξ · V) · Ξ
 ```
@@ -34,62 +34,62 @@ V_new = softmax(β · Ξ · V) · Ξ
 Attention(Q, K, V) = softmax(Q · K^T / √d) · V
 ```
 
-Son idénticas en estructura. En Hopfield, buscas en tu memoria (Ξ) el patrón más cercano a tu estado actual (V), y recuperas una combinación ponderada. En Attention, buscas en tus keys (K) lo más relevante para tu query (Q), y recuperas una combinación ponderada de values (V).
+They're structurally identical. In Hopfield, you search your memory (Ξ) for the pattern closest to your current state (V), and retrieve a weighted combination. In Attention, you search your keys (K) for what's most relevant to your query (Q), and retrieve a weighted combination of values (V).
 
-La única diferencia real: en Transformers aprendes a proyectar Q, K, V desde la misma entrada con matrices de peso distintas. En Hopfield clásico, los patrones Ξ son fijos.
-
----
-
-## Lo que mi tesis me enseñó (y que sigue siendo cierto)
-
-Debugando Hopfield Networks en 1998, aprendí lecciones que hoy aplico a diario:
-
-**1. Las restricciones correctas son todo.** Mi implementación original tenía un bug sutil: codificaba las restricciones del Traveling Salesman Problem (ciclo Hamiltoniano) en lugar de Shortest Path (conservación de flujo). Corregir esto llevó la fiabilidad del 40% al 95%. Una sola línea de código.
-
-**2. Sin estado compartido entre consultas.** Reutilizar el optimizador Adam entre consultas contaminaba el momento de queries anteriores. Cada consulta necesita estado fresco. Esto es aún más relevante hoy con modelos que sirven a millones de usuarios.
-
-**3. Siempre ten un fallback.** Mi solver ahora ejecuta Dijkstra en paralelo. Si la solución Hopfield está dentro del 5% de la óptima, la uso. Si no, caigo a Dijkstra. Esto da 100% de fiabilidad. En producción, siempre hay que tener un plan B.
-
-**4. La parada temprana ahorra el 40-60% del tiempo.** Cuando la energía se estabiliza, parar. No sigues iterando sin mejora. Este principio está en todas partes hoy: early stopping en training, speculative decoding en inference.
+The only real difference: in Transformers you learn to project Q, K, V from the same input using distinct weight matrices. In classic Hopfield, the patterns Ξ are fixed.
 
 ---
 
-## Las 7 correcciones (resumen)
+## What my thesis taught me (and what's still true today)
 
-1. Restricciones de flujo vs. TSP (40% → 95% fiabilidad)
-2. Cero entrenamiento offline (30-60s ahorrados)
-3. Optimizador fresco por consulta
-4. Fallback a Dijkstra (100% fiabilidad)
-5. Parada temprana por energía estable
-6. BFS en lugar de argmax greedy
-7. Caché de modelo en memoria (2-3s → 50ms)
+Debugging Hopfield Networks in 1998, I learned lessons I still apply daily:
 
----
+**1. Correct constraints are everything.** My original implementation had a subtle bug: it encoded Traveling Salesman Problem constraints (a Hamiltonian cycle) instead of Shortest Path constraints (flow conservation). Fixing this took reliability from 40% to 95%. A single line of code.
 
-## La demo que lo visualiza
+**2. No shared state between queries.** Reusing the Adam optimizer across queries contaminated the momentum from previous queries. Every query needs fresh state. This is even more relevant today with models serving millions of users.
 
-He construido un dashboard interactivo donde puedes ajustar la temperatura, el ruido, y ver cómo la misma operación se visualiza como Hopfield o como Attention:
+**3. Always have a fallback.** My solver now runs Dijkstra in parallel. If the Hopfield solution is within 5% of optimal, I use it. Otherwise, I fall back to Dijkstra. This gives 100% reliability. In production, you always need a plan B.
 
-- **β bajo** → atención difusa, todos los patrones pesan similar
-- **β alto** → atención enfocada, un solo patrón domina
-
-Es exactamente el mismo principio que el softmax temperature en LLMs.
+**4. Early stopping saves 40-60% of the time.** When energy stabilizes, stop. Don't keep iterating without improvement. This principle is everywhere today: early stopping in training, speculative decoding in inference.
 
 ---
 
-## Por qué esto importa (y no es solo nostalgia)
+## The 7 fixes (summary)
 
-1. La conexión Hopfield-Attention proporciona un **marco teórico sólido** para entender por qué los transformers funcionan
-2. Sugiere **nuevas arquitecturas**: atención iterativa (múltiples pasos Hopfield), memoria jerárquica, temperatura dinámica
-3. Cierra un círculo personal de 25 años
-
-La Hopfield Network de 1982, que parecía un callejón sin salida, resultó ser el embrión de la arquitectura que define la IA moderna. No se necesitó una idea nueva. Se necesitaron mejores funciones de activación, mejor hardware, y 25 años de ingeniería.
+1. Flow constraints vs. TSP (40% → 95% reliability)
+2. Zero offline training (30-60s saved)
+3. Fresh optimizer per query
+4. Dijkstra fallback (100% reliability)
+5. Early stopping on stable energy
+6. BFS instead of greedy argmax
+7. In-memory model cache (2-3s → 50ms)
 
 ---
 
-*El código, el dashboard y los 7 capítulos completos están aquí:*  
+## The demo that visualizes it
+
+I built an interactive dashboard where you can adjust temperature, noise, and see how the same operation is visualized as Hopfield or as Attention:
+
+- **Low β** → diffuse attention, all patterns weigh similarly
+- **High β** → focused attention, a single pattern dominates
+
+It's exactly the same principle as softmax temperature in LLMs.
+
+---
+
+## Why this matters (and it's not just nostalgia)
+
+1. The Hopfield-Attention connection provides a **solid theoretical framework** for understanding why transformers work
+2. It suggests **new architectures**: iterative attention (multiple Hopfield steps), hierarchical memory, dynamic temperature
+3. It closes a personal 25-year loop
+
+The 1982 Hopfield Network, which seemed like a dead end, turned out to be the embryo of the architecture that defines modern AI. It didn't take a new idea. It took better activation functions, better hardware, and 25 years of engineering.
+
+---
+
+*The code, the dashboard, and all 7 full chapters are here:*
 **GitHub:** [RobertoDeLaCamara/HopfieldAttention](https://github.com/RobertoDeLaCamara/HopfieldAttention)
 
-*Hardware usado en el homelab: RTX 5060 Ti + WSL2 (Hawkeye) + Raspberry Pi cluster para monitoreo de red.*
+*Homelab hardware used: RTX 5060 Ti + WSL2 (Hawkeye) + Raspberry Pi cluster for network monitoring.*
 
-*Si quieres leer el artículo técnico completo (con matemáticas, código y benchmarks): [Hashnode — De Hopfield Networks a Transformers](URL_AQUI)*
+*If you want to read the full technical article (with math, code, and benchmarks): [Hashnode — From Hopfield Networks to Transformers](URL_HERE)*

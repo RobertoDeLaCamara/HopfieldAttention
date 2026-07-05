@@ -1,20 +1,20 @@
-# 3. Siete Correcciones que Transformaron un Hopfield Roto en un Solver Robusto
+# 3. Seven Fixes That Turned a Broken Hopfield Solver into a Robust One
 
-> *Veinticinco años después de mi tesis, volví a implementar el solver de shortest path con Hopfield. El resultado: una fiabilidad del 40-60%. Este capítulo documenta las siete correcciones específicas que elevaron esa cifra al 95-100%.*
+> *Twenty-five years after my thesis, I re-implemented the Hopfield shortest-path solver. The result: 40-60% reliability. This chapter documents the seven specific fixes that raised that number to 95-100%.*
 
-## El Problema de Raíz: Restricciones Incorrectas
+## The Root Problem: Wrong Constraints
 
-El modelo original codificaba las restricciones de un **ciclo Hamiltoniano** (el problema del viajante, TSP) en lugar de las de **conservación de flujo** (Shortest Path). Esto es fundamentalmente incorrecto para el SPP.
+The original model encoded the constraints of a **Hamiltonian cycle** (the traveling salesman problem, TSP) instead of **flow conservation** (Shortest Path). This is fundamentally wrong for the SPP.
 
-Las restricciones correctas para Shortest Path son:
+The correct constraints for Shortest Path are:
 
-- **Origen**: una unidad más de flujo sale que entra
-- **Destino**: una unidad más de flujo entra que sale
-- **Intermedios**: el flujo entrante iguala al saliente
+- **Source**: one more unit of flow leaves than enters
+- **Destination**: one more unit of flow enters than leaves
+- **Intermediate nodes**: incoming flow equals outgoing flow
 
-Las restricciones de TSP exigen que cada nodo tenga exactamente una arista entrante y una saliente — un ciclo completo. El modelo buscaba soluciones en el espacio de solución equivocado.
+TSP constraints require every node to have exactly one incoming and one outgoing edge — a complete cycle. The model was searching for solutions in the wrong solution space.
 
-La corrección (`train_model_improved.py`):
+The fix (`train_model_improved.py`):
 
 ```python
 def energy(self, source, destination, temperature=0.5):
@@ -33,79 +33,79 @@ def energy(self, source, destination, temperature=0.5):
             flow_penalty += tf.square(out_flow - in_flow)
 ```
 
-Este único cambio es responsable del salto del 40% al 95% de fiabilidad.
+This single change is responsible for the jump from 40% to 95% reliability.
 
-## Corrección 1: Cero Entrenamiento Offline
+## Fix 1: Zero Offline Training
 
-El modelo original ejecutaba 1000 épocas de entrenamiento offline antes de cualquier consulta. Esto es computación inútil: los pesos de Hopfield son la matriz de costos, no parámetros aprendibles.
+The original model ran 1000 epochs of offline training before any query. That's wasted computation: the Hopfield weights are the cost matrix, not learnable parameters.
 
 ```python
-# Original: 1000 épocas de nada
-modelo = HopfieldModel(n, distance_matrix)
-modelo.fit(dummy_data, epochs=1000)
+# Original: 1000 epochs of nothing
+model = HopfieldModel(n, distance_matrix)
+model.fit(dummy_data, epochs=1000)
 
-# Mejorado: cero entrenamiento offline
-modelo = ImprovedHopfieldModel(n, distance_matrix)
-# Sin training. La optimización ocurre en tiempo de consulta.
+# Improved: zero offline training
+model = ImprovedHopfieldModel(n, distance_matrix)
+# No training. Optimization happens at query time.
 ```
 
-Ahorro: 30-60 segundos de computación sin sentido.
+Savings: 30-60 seconds of pointless computation.
 
-## Corrección 2: Optimizador Fresco por Consulta
+## Fix 2: A Fresh Optimizer Per Query
 
-El optimizador Adam mantiene vectores de momento (estimaciones de primer y segundo orden). Reutilizar el mismo optimizador entre consultas conserva momento de caminos anteriores, contaminando la búsqueda actual.
+The Adam optimizer keeps momentum vectors (first- and second-order estimates). Reusing the same optimizer across queries carries over momentum from previous paths, contaminating the current search.
 
 ```python
-# Original (contaminación de estado):
+# Original (state contamination):
 self.optimizer = tf.optimizers.Adam(learning_rate=0.01)
 
-# Mejorado:
+# Improved:
 def optimize(self, source, destination, ...):
-    optimizer = tf.optimizers.Adam(learning_rate=0.02)  # Fresco
-    self.logits.assign(tf.random.normal(...))           # Logits frescos
+    optimizer = tf.optimizers.Adam(learning_rate=0.02)  # Fresh
+    self.logits.assign(tf.random.normal(...))           # Fresh logits
 ```
 
-## Corrección 3: Fallback a Dijkstra
+## Fix 3: Fallback to Dijkstra
 
-Ningún algoritmo heurístico es 100% fiable. El nuevo modelo ejecuta Dijkstra como validación después de la optimización Hopfield. Si Hopfield produce una solución >5% peor que la óptima conocida, se usa Dijkstra.
+No heuristic algorithm is 100% reliable. The new model runs Dijkstra as validation after the Hopfield optimization. If Hopfield produces a solution more than 5% worse than the known optimum, Dijkstra's result is used instead.
 
 ```python
 if best_path is None or best_cost > dijkstra_cost * 1.05:
-    return dijkstra_path  # Solución garantizada
-return best_path  # Solución Hopfield (dentro del 5% de la óptima)
+    return dijkstra_path  # Guaranteed solution
+return best_path  # Hopfield solution (within 5% of optimal)
 ```
 
-## Corrección 4: Parada Temprana
+## Fix 4: Early Stopping
 
-El modelo original siempre ejecutaba el número completo de iteraciones. El nuevo detiene la ejecución cuando la energía se estabiliza (20 iteraciones sin mejora >1e-6). Reducción del 40-60% en tiempo de consulta.
+The original model always ran the full number of iterations. The new one stops once the energy stabilizes (20 iterations with no improvement >1e-6). This cuts query time by 40-60%.
 
-## Corrección 5: Múltiples Reinicios
+## Fix 5: Multiple Restarts
 
-El paisaje de energía de Hopfield tiene mínimos locales. Ejecutar tres reinicios desde puntos de partida aleatorios y quedarse con el mejor resultado mejora significativamente la calidad.
+The Hopfield energy landscape has local minima. Running three restarts from random starting points and keeping the best result significantly improves solution quality.
 
-## Corrección 6: Extracción BFS vs. Argmax
+## Fix 6: BFS Extraction vs. Argmax
 
-La extracción greedy (argmax) se queda en callejones sin salida. La nueva implementación usa BFS sobre el conjunto de aristas con activación >0.5, ordenadas por peso. Si hay un camino en las aristas activas, BFS lo encuentra.
+Greedy extraction (argmax) gets stuck in dead ends. The new implementation uses BFS over the set of edges with activation >0.5, sorted by weight. If a path exists among the active edges, BFS finds it.
 
-## Corrección 7: Caché de Modelo
+## Fix 7: Model Caching
 
-La API original cargaba el modelo de disco en cada petición (~2s). La nueva usa un caché en memoria. Primera llamada: ~2-3s. Siguientes: ~50-100ms.
+The original API loaded the model from disk on every request (~2s). The new one uses an in-memory cache. First call: ~2-3s. Subsequent calls: ~50-100ms.
 
-## Resultado
+## Result
 
-| Métrica | Original | Mejorado |
+| Metric | Original | Improved |
 |---------|----------|----------|
-| Tiempo de consulta | 5-10s | 1-3s |
-| Soluciones óptimas | 40-60% | 95-100% |
-| Fiabilidad | 80-90% | 100% |
-| Máximo tamaño grafo | ~100 | ~500 (5000+ con sparse) |
+| Query time | 5-10s | 1-3s |
+| Optimal solutions | 40-60% | 95-100% |
+| Reliability | 80-90% | 100% |
+| Max graph size | ~100 | ~500 (5000+ with sparse) |
 
-## Lección General
+## The General Lesson
 
-Siete correcciones, de las cuales solo una — las restricciones correctas — fue responsable de la mayor parte de la mejora. Las otras seis fueron _disciplina de ingeniería_: caché, estado fresco, parada temprana, múltiples intentos, fallback.
+Seven fixes, of which only one — the correct constraints — was responsible for most of the improvement. The other six were _engineering discipline_: caching, fresh state, early stopping, multiple attempts, fallback.
 
-El tesis de 1998 no falló por la idea. Falló por la implementación. Veinticinco años después, con mejores herramientas y más experiencia, la idea funciona.
+The 1998 thesis didn't fail because of the idea. It failed because of the implementation. Twenty-five years later, with better tools and more experience, the idea works.
 
 ---
 
-**Siguiente: [Capítulo 4 — Modern Hopfield Networks: La Revolución Silenciosa](04_modern_hopfield.md)**
+**Next: [Chapter 4 — Modern Hopfield Networks: The Quiet Revolution](04_modern_hopfield.md)**

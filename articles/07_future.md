@@ -1,14 +1,14 @@
-# 7. Hacia el Futuro: Hopfield Layers en Deep Learning Moderno
+# 7. Looking Ahead: Hopfield Layers in Modern Deep Learning
 
-> *La conexión entre Hopfield y atención no es solo un ejercicio teórico — abre direcciones activas de investigación y aplicación. Este capítulo explora hacia dónde nos lleva este camino.*
+> *The connection between Hopfield and attention isn't just a theoretical exercise — it opens active directions for research and application. This chapter explores where this path leads.*
 
-## Hopfield Layers Como Componentes de Redes Profundas
+## Hopfield Layers as Components of Deep Networks
 
-El artículo de Ramsauer et al. (2021) propuso explícitamente las **Hopfield Layers** como bloques de construcción para deep learning:
+The paper by Ramsauer et al. (2021) explicitly proposed **Hopfield Layers** as building blocks for deep learning:
 
 ```python
 class HopfieldLayer(torch.nn.Module):
-    """Una capa de atención basada en Hopfield Networks."""
+    """An attention layer based on Hopfield Networks."""
     def __init__(self, input_dim, num_heads):
         super().__init__()
         self.num_heads = num_heads
@@ -17,7 +17,7 @@ class HopfieldLayer(torch.nn.Module):
         self.W_V = nn.Linear(input_dim, input_dim)
 
     def forward(self, x):
-        # Una actualización Hopfield = una capa de atención
+        # A Hopfield update = an attention layer
         Q = self.W_Q(x)
         K = self.W_K(x)
         V = self.W_V(x)
@@ -25,87 +25,87 @@ class HopfieldLayer(torch.nn.Module):
         return attention @ V
 ```
 
-Esto ya es atención estándar. La contribución de la teoría de Hopfield es:
+This is already standard attention. What Hopfield theory contributes is:
 
-1. **Nuevas funciones de energía**: en lugar de softmax estándar, podemos usar otras funciones derivadas de principios de energía
-2. **Múltiples pasos de actualización**: la atención estándar hace un paso; la teoría Hopfield sugiere que múltiples pasos podrían converger a mejores atractores
-3. **Memoria externa explícita**: los patrones almacenados pueden ser dinámicos, actualizables, aprendibles
+1. **New energy functions**: instead of standard softmax, we can use other functions derived from energy principles
+2. **Multiple update steps**: standard attention takes one step; Hopfield theory suggests multiple steps could converge to better attractors
+3. **Explicit external memory**: the stored patterns can be dynamic, updatable, learnable
 
-## Direcciones Activas de Investigación
+## Active Research Directions
 
-### 1. Atención Iterativa (Deep Attention)
+### 1. Iterative Attention (Deep Attention)
 
-Múltiples pasos de actualización Hopfield en lugar de una sola capa de atención:
+Multiple Hopfield update steps instead of a single attention layer:
 
 ```python
 for step in range(num_steps):
     attention = softmax(beta * Q @ K.T)
-    Q = attention @ V  # Nuevo estado = actualización Hopfield
+    Q = attention @ V  # New state = Hopfield update
 ```
 
-Cada paso "refina" la representación hacia un atractor más estable. Esto podría mejorar la capacidad de razonamiento profundo.
+Each step "refines" the representation toward a more stable attractor. This could improve deep reasoning capability.
 
-### 2. Memoria Asociativa Jerárquica
+### 2. Hierarchical Associative Memory
 
-Múltiples Hopfield Layers donde los patrones de una capa se convierten en los estados de la siguiente arquitectura:
+Multiple Hopfield Layers where the patterns of one layer become the states of the next layer:
 
 ```
-Entrada → HopfieldLayer₁ → HopfieldLayer₂ → ... → Salida
+Input → HopfieldLayer₁ → HopfieldLayer₂ → ... → Output
 ```
 
-Cada capa tiene sus propios patrones almacenados (su propia "memoria"), formando una jerarquía de representaciones. Esto recuerda a un transformer profundo — y no es coincidencia.
+Each layer has its own stored patterns (its own "memory"), forming a hierarchy of representations. This resembles a deep transformer — and that's no coincidence.
 
-### 3. Control de Temperatura Dinámica
+### 3. Dynamic Temperature Control
 
-En lugar de temperatura fija, aprender a ajustar $\beta$ por token o por capa:
+Instead of a fixed temperature, learn to adjust $\beta$ per token or per layer:
 
 $$
-\beta_{\text{adaptativo}} = f_{\text{aprendida}}(x_i)
+\beta_{\text{adaptive}} = f_{\text{learned}}(x_i)
 $$
 
-Tokens con alta incertidumbre usan temperatura alta (atención difusa), tokens con baja incertidumbre usan temperatura baja (atención aguda a un patrón específico).
+Tokens with high uncertainty use high temperature (diffuse attention), tokens with low uncertainty use low temperature (sharp attention on a specific pattern).
 
-### 4. Hopfield Convolucional (Convolutional Hopfield)
+### 4. Convolutional Hopfield
 
-En lugar de atención sobre tokens, atención sobre parches de imágenes usando estructura de Hopfield:
+Instead of attention over tokens, attention over image patches using Hopfield structure:
 
 ```python
-# Cada parche es un patrón, la imagen es el estado
+# Each patch is a pattern, the image is the state
 patches = extract_patches(image, patch_size)
 energy = -sum(exp(beta * patches * state))
 ```
 
-Potencialmente más eficiente que la atención de imagen completa.
+Potentially more efficient than full-image attention.
 
-### 5. Aprendizaje Continuo con Memoria Hopfield
+### 5. Continual Learning with Hopfield Memory
 
-Las Hopfield Networks son inherentemente memorias. Usarlas como memoria externa para aprendizaje continuo:
+Hopfield Networks are inherently memories. Using them as external memory for continual learning:
 
-- Almacenar representaciones de tareas previas como patrones
-- Evitar el olvido catastrófico manteniendo atractores de tareas antiguas
-- Recuperar contexto relevante mediante atención Hopfield
+- Store representations of previous tasks as patterns
+- Avoid catastrophic forgetting by maintaining attractors of old tasks
+- Retrieve relevant context via Hopfield attention
 
-## Aplicaciones Prácticas en Telecom
+## Practical Applications in Telecom
 
-Como profesional de telecomunicaciones, veo aplicaciones concretas:
+As a telecommunications professional, I see concrete applications:
 
-- **Anomaly detection en redes 5G**: patrones de tráfico normal como atractores; desviaciones son anomalías
-- **Network digital twins**: la memoria Hopfield como modelo comprimido del comportamiento de la red
-- **Ruteo adaptable**: rutas óptimas como atractores en una Hopfield Network que evoluciona con la carga de la red
-- **AIOps**: patrones de incidentes previos como memoria para diagnóstico de nuevos problemas
+- **Anomaly detection in 5G networks**: normal traffic patterns as attractors; deviations are anomalies
+- **Network digital twins**: Hopfield memory as a compressed model of network behavior
+- **Adaptive routing**: optimal routes as attractors in a Hopfield Network that evolves with network load
+- **AIOps**: patterns from previous incidents as memory for diagnosing new problems
 
-## Cierre del Círculo
+## Closing the Loop
 
-En 1998, implementé una Hopfield Network para encontrar caminos mínimos en un grafo. La red convergía lentamente, era poco fiable, y escalaba mal. Veinticinco años después, el mismo mecanismo matemático — con softmax, matrices de proyección aprendidas, y escalabilidad gracias a hardware moderno — impulsa los sistemas de IA más avanzados.
+In 1998, I implemented a Hopfield Network to find minimum-cost paths in a graph. The network converged slowly, was unreliable, and scaled poorly. Twenty-five years later, the same mathematical mechanism — with softmax, learned projection matrices, and scalability thanks to modern hardware — powers the most advanced AI systems.
 
-La diferencia no fue la idea. Fue la ingeniería:
-- Mejores funciones de activación (softmax vs. sigmoide binario)
-- Mejores algoritmos de optimización (Adam vs. gradiente descendente simple)
-- Mejor hardware (GPUs vs. CPUs de los 90)
-- Mejores datos (Internet vs. datasets sintéticos de 50 nodos)
+The difference wasn't the idea. It was the engineering:
+- Better activation functions (softmax vs. binary sigmoid)
+- Better optimization algorithms (Adam vs. plain gradient descent)
+- Better hardware (GPUs vs. '90s CPUs)
+- Better data (the Internet vs. synthetic 50-node datasets)
 
-La Hopfield Network de 1982, que parecía un callejón sin salida, resultó ser el embrión de la arquitectura que define la inteligencia artificial moderna. Solo necesitó veinticinco años de progreso incremental para revelar su verdadero potencial.
+The 1982 Hopfield Network, which seemed like a dead end, turned out to be the embryo of the architecture defining modern artificial intelligence. It just needed twenty-five years of incremental progress to reveal its true potential.
 
 ---
 
-**[Volver al inicio](../README.md)**
+**[Back to start](../README.md)**

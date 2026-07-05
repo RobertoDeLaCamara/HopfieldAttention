@@ -1,16 +1,16 @@
 ---
-title: "Hopfield Networks y Attention son la misma operación — y lo implementé en 100 líneas de Python"
+title: "Hopfield Networks and Attention Are the Same Operation — and I Implemented It in 100 Lines of Python"
 date: 2026-05-11
 author: "Roberto de la Cámara"
 tags: [hopfield-networks, transformers, attention, python, numpy]
 platforms: [huggingface]
 ---
 
-# Hopfield Networks y Attention son la misma operación
+# Hopfield Networks and Attention Are the Same Operation
 
-**TL;DR:** La actualización de una Hopfield Network moderna y el mecanismo de atención de un Transformer producen resultados idénticos cuando se configuran con los mismos parámetros. Lo he verificado con tests numéricos.
+**TL;DR:** A modern Hopfield Network's update and a Transformer's attention mechanism produce identical results when configured with the same parameters. I've verified this with numerical tests.
 
-## La equivalencia en 30 segundos
+## The equivalence in 30 seconds
 
 ```python
 # Hopfield: V_new = softmax(β · Ξ · V) · Ξ
@@ -24,34 +24,34 @@ sims = (query @ keys.T) / scale
 weights = softmax(sims)
 output = weights @ values
 
-# Son idénticos cuando: Q=V, K=patterns, V=patterns, scale=1/β
+# They're identical when: Q=V, K=patterns, V=patterns, scale=1/β
 ```
 
-## Resultados de las pruebas
+## Test results
 
-He implementado `hopfield_attention_bridge.py` (100 líneas, NumPy puro) que demuestra la equivalencia:
+I implemented `hopfield_attention_bridge.py` (100 lines, pure NumPy) that demonstrates the equivalence:
 
-| Test | Resultado |
+| Test | Result |
 |------|-----------|
-| Diferencia Hopfield vs Attention | 0.0e+00 (idénticos) |
-| 10 estados aleatorios | ✅ Todos verificados |
-| β alto → entropía baja | ✅ Atención más enfocada |
-| Convergencia iterativa | ✅ Energía estable |
+| Hopfield vs Attention difference | 0.0e+00 (identical) |
+| 10 random states | ✅ All verified |
+| High β → low entropy | ✅ More focused attention |
+| Iterative convergence | ✅ Stable energy |
 
-## Pregunta para la comunidad
+## Question for the community
 
-Si atención = actualización Hopfield, ¿qué implicaciones tiene para:
+If attention = Hopfield update, what are the implications for:
 
-1. **Nuevas arquitecturas** — atención iterativa con múltiples pasos de energía
-2. **Memoria explícita** — Hopfield como memoria externa para aprendizaje continuo
-3. **Temperatura dinámica** — β aprendido por token en lugar de fijo
+1. **New architectures** — iterative attention with multiple energy steps
+2. **Explicit memory** — Hopfield as external memory for continual learning
+3. **Dynamic temperature** — β learned per token instead of fixed
 
-¿Alguien ha explorado alguna de estas direcciones? Me interesa especialmente la atención iterativa como alternativa a cadenas de transformers apilados.
+Has anyone explored any of these directions? I'm especially interested in iterative attention as an alternative to stacks of chained transformers.
 
 ---
 
-**Artículo completo (7 capítulos):** [Hashnode](URL_AQUI)  
-**Código + dashboard interactivo:** [GitHub](https://github.com/RobertoDeLaCamara/HopfieldAttention)  
-**Demo en vivo:** 🤗 *próximamente*
+**Full article (7 chapters):** [Hashnode](URL_HERE)
+**Code + interactive dashboard:** [GitHub](https://github.com/RobertoDeLaCamara/HopfieldAttention)
+**Live demo:** 🤗 *coming soon*
 
-*Hecho en mi homelab — WSL2 + RTX 5060 Ti + NumPy para las pruebas de equivalencia, TensorFlow para el solver de Shortest Path.*
+*Built in my homelab — WSL2 + RTX 5060 Ti + NumPy for the equivalence tests, TensorFlow for the Shortest Path solver.*

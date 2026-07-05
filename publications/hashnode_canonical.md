@@ -1,5 +1,5 @@
 ---
-title: "De Hopfield Networks a Transformers: 25 Años de Optimización a Atención"
+title: "From Hopfield Networks to Transformers: 25 Years from Optimization to Attention"
 date: 2026-05-11
 author: "Roberto de la Cámara"
 tags: [hopfield-networks, transformers, attention-mechanism, deep-learning, neural-networks, history-of-ai, combinatorial-optimization]
@@ -7,151 +7,151 @@ platforms: [hashnode, devto]
 canonical: hashnode
 ---
 
-# De Hopfield Networks a Transformers: 25 Años de Optimización a Atención
+# From Hopfield Networks to Transformers: 25 Years from Optimization to Attention
 
-En 1998, siendo estudiante de Ingeniería de Telecomunicación en Valladolid, escribí mi tesis sobre la aplicación de Hopfield Neural Networks al Shortest Path Problem. Veintisiete años después, el mismo mecanismo matemático, con mejores funciones de activación, matrices de proyección aprendidas, y escalabilidad gracias a GPUs, impulsa los sistemas de inteligencia artificial más avanzados del mundo.
+In 1998, as a Telecommunications Engineering student in Valladolid, I wrote my thesis on applying Hopfield Neural Networks to the Shortest Path Problem. Twenty-seven years later, the same mathematical mechanism, with better activation functions, learned projection matrices, and GPU-driven scalability, powers the most advanced artificial intelligence systems in the world.
 
-La afirmación central de este artículo es directa:
+The central claim of this article is direct:
 
-> **El mecanismo de atención de un Transformer y la actualización de estado de una Hopfield Network son la misma operación matemática.**
+> **A Transformer's attention mechanism and a Hopfield Network's state update are the same mathematical operation.**
 
 ---
 
-## Capítulo 1: La Hopfield Original (1982)
+## Chapter 1: The Original Hopfield Network (1982)
 
-John Hopfield publicó en 1982 una red recurrente que convergía a puntos fijos minimizando una función de energía. Cada neurona está conectada a todas las demás, y el estado de la red evoluciona garantizando que la energía nunca aumente.
+John Hopfield published a recurrent network in 1982 that converged to fixed points by minimizing an energy function. Every neuron is connected to every other neuron, and the network's state evolves while guaranteeing that energy never increases.
 
 $$E = -\frac{1}{2} \sum_{i,j} w_{ij} s_i s_j + \sum_i \theta_i s_i$$
 
-Las Hopfield Networks se popularizaron como **memorias asociativas**: almacenas patrones como mínimos de energía, y la red recupera el patrón completo a partir de una entrada parcial o ruidosa.
+Hopfield Networks became popular as **associative memories**: you store patterns as energy minima, and the network retrieves the full pattern from a partial or noisy input.
 
-Dos limitaciones marcaron la investigación durante décadas:
-1. **Capacidad limitada**: ~0.15·n patrones para n neuronas
-2. **Mínimos espurios**: la red converge al mínimo local más cercano, no siempre un patrón válido
-
----
-
-## Capítulo 2: Mi Tesis de 1998 — Hopfield para Shortest Path
-
-El Shortest Path Problem (SPP) es fundamental en redes de telecomunicación. La idea: codificar las restricciones del problema como términos en una función de energía. Para el SPP:
-
-- **Origen**: una unidad más de flujo sale que entra
-- **Destino**: una unidad más de flujo entra que sale
-- **Intermedios**: flujo entrante = flujo saliente
-- **Costo**: minimizar $\sum C[i][j] \cdot V[i][j]$
-
-La red minimizaba la energía total mediante gradiente descendente. **Funcionaba**: para grafos pequeños (<20 nodos), encontraba caminos válidos. Pero:
-- Fiabilidad del 40-60%
-- Dependencia crítica de hiperparámetros
-- Sin escalabilidad más allá de 50 nodos
-- 5-10 segundos por consulta vs milisegundos de Dijkstra
-
-En 1998, estas limitaciones parecían fatales.
+Two limitations marked the research for decades:
+1. **Limited capacity**: ~0.15·n patterns for n neurons
+2. **Spurious minima**: the network converges to the nearest local minimum, not always a valid pattern
 
 ---
 
-## Capítulo 3: Siete Correcciones que lo Cambiaron Todo
+## Chapter 2: My 1998 Thesis — Hopfield for Shortest Path
 
-Veinticinco años después, volví a implementar el solver. Las siete correcciones que elevaron la fiabilidad del 40-60% al 95-100%:
+The Shortest Path Problem (SPP) is fundamental in telecommunications networks. The idea: encode the problem's constraints as terms in an energy function. For SPP:
 
-1. **Restricciones correctas**: el modelo original codificaba TSP (ciclo Hamiltoniano), no SPP (conservación de flujo). Este único cambio explica el salto del 40% al 95%.
-2. **Cero entrenamiento offline**: los pesos de Hopfield son la matriz de costos, no parámetros aprendibles. 1000 épocas de nada.
-3. **Optimizador fresco por consulta**: reutilizar Adam entre consultas contamina el momento.
-4. **Fallback a Dijkstra**: si Hopfield produce una solución >5% peor, usa la óptima garantizada.
-5. **Parada temprana**: energía estable → deja de iterar. 40-60% menos tiempo.
-6. **BFS vs. Argmax**: la extracción greedy se queda en callejones sin salida. BFS explora múltiples caminos.
-7. **Caché de modelo**: primera llamada ~2-3s, siguientes ~50-100ms.
+- **Source**: one more unit of flow leaves than enters
+- **Destination**: one more unit of flow enters than leaves
+- **Intermediate nodes**: incoming flow = outgoing flow
+- **Cost**: minimize $\sum C[i][j] \cdot V[i][j]$
+
+The network minimized total energy via gradient descent. **It worked**: for small graphs (<20 nodes), it found valid paths. But:
+- 40-60% reliability
+- Critical dependence on hyperparameters
+- No scalability beyond 50 nodes
+- 5-10 seconds per query vs. milliseconds for Dijkstra
+
+In 1998, these limitations seemed fatal.
 
 ---
 
-## Capítulo 4: Modern Hopfield Networks (2016-2021)
+## Chapter 3: Seven Fixes That Changed Everything
 
-Krotov & Hopfield (2016) propusieron reemplazar la energía cuadrática por funciones más generales. Demircigil et al. (2017) demostraron que con energía exponencial, la capacidad crece de **lineal a exponencial** en el número de neuronas.
+Twenty-five years later, I reimplemented the solver. The seven fixes that raised reliability from 40-60% to 95-100%:
 
-La regla de actualización resultante:
+1. **Correct constraints**: the original model encoded TSP (Hamiltonian cycle), not SPP (flow conservation). This single change explains the jump from 40% to 95%.
+2. **Zero offline training**: Hopfield's weights are the cost matrix, not learnable parameters. 1000 epochs of nothing.
+3. **Fresh optimizer per query**: reusing Adam across queries contaminates momentum.
+4. **Dijkstra fallback**: if Hopfield produces a solution >5% worse, use the guaranteed optimum.
+5. **Early stopping**: stable energy → stop iterating. 40-60% less time.
+6. **BFS vs. Argmax**: greedy extraction gets stuck in dead ends. BFS explores multiple paths.
+7. **Model cache**: first call ~2-3s, subsequent calls ~50-100ms.
+
+---
+
+## Chapter 4: Modern Hopfield Networks (2016-2021)
+
+Krotov & Hopfield (2016) proposed replacing the quadratic energy with more general functions. Demircigil et al. (2017) showed that with exponential energy, capacity grows from **linear to exponential** in the number of neurons.
+
+The resulting update rule:
 
 $$\mathbf{V}^{new} = \sum_{\mu} \text{softmax}_\mu(\beta \cdot \xi^{\mu} \cdot \mathbf{V}) \cdot \xi^{\mu}$$
 
-Que no es otra cosa que softmax aplicado a productos punto, seguido de suma ponderada.
+Which is nothing more than softmax applied to dot products, followed by a weighted sum.
 
 ---
 
-## Capítulo 5: La Conexión (el núcleo de todo)
+## Chapter 5: The Connection (the core of it all)
 
-**Actualización Hopfield (moderna):**
+**Hopfield update (modern):**
 
 $$\mathbf{V}^{new} = \text{softmax}\left(\beta \cdot \Xi \cdot \mathbf{V}\right) \cdot \Xi$$
 
-**Atención Transformer:**
+**Transformer attention:**
 
 $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{Q \cdot K^T}{\sqrt{d_k}}\right) \cdot V$$
 
-La correspondencia:
+The correspondence:
 
-| Hopfield | Transformer | Significado |
+| Hopfield | Transformer | Meaning |
 |----------|-------------|-------------|
-| Estado V | Query Q | Lo que procesamos |
-| Patrones Ξ | Keys K^T | La memoria |
-| Patrones Ξ | Values V | Lo que recuperamos |
-| β | 1/√d_k | Temperatura |
+| State V | Query Q | What we process |
+| Patterns Ξ | Keys K^T | The memory |
+| Patterns Ξ | Values V | What we retrieve |
+| β | 1/√d_k | Temperature |
 
-Ramsauer et al. (2021) demostraron formalmente:
-- **Equivalencia completa**: atención softmax = un paso de Modern Hopfield Network continua
-- **Convergencia en un paso**: con softmax, la red converge al atractor en una iteración
-- **Multi-head = Multi-Hopfield**: cada cabeza de atención es una Hopfield Network independiente
-- **Escala como temperatura**: 1/√d_k controla la nitidez de la recuperación
+Ramsauer et al. (2021) formally showed:
+- **Complete equivalence**: softmax attention = one step of a continuous Modern Hopfield Network
+- **Single-step convergence**: with softmax, the network converges to the attractor in one iteration
+- **Multi-head = Multi-Hopfield**: each attention head is an independent Hopfield Network
+- **Scale as temperature**: 1/√d_k controls the sharpness of retrieval
 
 ---
 
-## Capítulo 6: Subspace Attention
+## Chapter 6: Subspace Attention
 
-La atención estándar tiene complejidad O(n²). Mi solver avanzado de Hopfield SPP implementó soluciones que prefiguran técnicas modernas de atención eficiente:
+Standard attention has O(n²) complexity. My advanced Hopfield SPP solver implemented solutions that prefigure modern efficient-attention techniques:
 
-| Técnica Hopfield SPP | Equivalente en Atención |
+| Hopfield SPP technique | Attention equivalent |
 |---------------------|------------------------|
-| Tensores sparse (O(E)) | Atención sparse (Reformer, BigBird) |
-| Atención local por vecindad | Ventana deslizante |
-| Beam search | Decoding autorregresivo |
-| Temperatura adaptativa | Temperature scaling |
+| Sparse tensors (O(E)) | Sparse attention (Reformer, BigBird) |
+| Local neighborhood attention | Sliding window |
+| Beam search | Autoregressive decoding |
+| Adaptive temperature | Temperature scaling |
 
-La lección: no toda atención necesita operar en el espacio completo. Podemos restringirla a subespacios relevantes.
-
----
-
-## Capítulo 7: Hacia el Futuro
-
-Direcciones activas de investigación que abre esta conexión:
-
-1. **Atención iterativa**: múltiples pasos de actualización Hopfield en lugar de una sola capa
-2. **Memoria asociativa jerárquica**: múltiples Hopfield Layers apiladas = transformer profundo
-3. **Temperatura dinámica aprendida**: β ajustado por token o capa
-4. **Aprendizaje continuo**: Hopfield como memoria externa para evitar olvido catastrófico
-
-En telecomunicaciones, aplicaciones concretas: detección de anomalías (patrones normales como atractores), digital twins (modelo comprimido del comportamiento de red), ruteo adaptable.
+The lesson: not all attention needs to operate over the full space. We can restrict it to relevant subspaces.
 
 ---
 
-## La Conexión Personal
+## Chapter 7: Toward the Future
 
-En 1998, implementé una Hopfield Network para caminos mínimos. Convergía lentamente, era poco fiable, escalaba mal. Veinticinco años después, el mismo mecanismo, con softmax, proyecciones aprendidas y GPUs, impulsa la IA moderna.
+Active research directions this connection opens up:
 
-La diferencia no fue la idea. Fue la ingeniería:
-- Mejores funciones de activación (softmax vs. sigmoide)
-- Mejores optimizadores (Adam vs. GD simple)
-- Mejor hardware (GPUs vs. CPUs de los 90)
-- Mejores datos (Internet vs. 50 nodos sintéticos)
+1. **Iterative attention**: multiple Hopfield update steps instead of a single layer
+2. **Hierarchical associative memory**: multiple stacked Hopfield Layers = a deep transformer
+3. **Learned dynamic temperature**: β adjusted per token or layer
+4. **Continual learning**: Hopfield as external memory to avoid catastrophic forgetting
 
-La Hopfield Network de 1982, que parecía un callejón sin salida, resultó ser el embrión de la arquitectura que define la inteligencia artificial moderna. Solo necesitó 25 años de progreso incremental para revelar su verdadero potencial.
+In telecommunications, concrete applications: anomaly detection (normal patterns as attractors), digital twins (a compressed model of network behavior), adaptive routing.
 
 ---
 
-## Demo Interactiva
+## The Personal Connection
+
+In 1998, I implemented a Hopfield Network for shortest paths. It converged slowly, was unreliable, scaled poorly. Twenty-five years later, the same mechanism, with softmax, learned projections and GPUs, powers modern AI.
+
+The difference wasn't the idea. It was the engineering:
+- Better activation functions (softmax vs. sigmoid)
+- Better optimizers (Adam vs. plain gradient descent)
+- Better hardware (GPUs vs. '90s CPUs)
+- Better data (the Internet vs. 50 synthetic nodes)
+
+The 1982 Hopfield Network, which seemed like a dead end, turned out to be the embryo of the architecture that defines modern artificial intelligence. It just needed 25 years of incremental progress to reveal its true potential.
+
+---
+
+## Interactive Demo
 
 [![Open in HF Spaces](https://img.shields.io/badge/🤗%20Open%20in-HF%20Spaces-FFD21E)](https://huggingface.co/spaces/RobertoDeLaCamara/HopfieldAttention)
 
-El código y todos los capítulos están en GitHub:  
+The code and all chapters are on GitHub:
 [![GitHub](https://img.shields.io/badge/GitHub-HopfieldAttention-181717)](https://github.com/RobertoDeLaCamara/HopfieldAttention)
 
 ---
 
-*Roberto de la Cámara. Tesis universitaria (1998): Hopfield Neural Network para el Shortest Path Problem. El código, el dashboard interactivo y los 7 capítulos completos: [github.com/RobertoDeLaCamara/HopfieldAttention](https://github.com/RobertoDeLaCamara/HopfieldAttention).*
+*Roberto de la Cámara. University thesis (1998): Hopfield Neural Network for the Shortest Path Problem. The code, the interactive dashboard, and all 7 full chapters: [github.com/RobertoDeLaCamara/HopfieldAttention](https://github.com/RobertoDeLaCamara/HopfieldAttention).*

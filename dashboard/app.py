@@ -3,34 +3,34 @@ import streamlit as st
 import plotly.graph_objects as go
 
 st.set_page_config(page_title="HopfieldAttention", layout="wide")
-st.title("🧠 HopfieldAttention: La Conexión Hopfield ↔ Attention")
+st.title("🧠 HopfieldAttention: The Hopfield ↔ Attention Connection")
 
 st.markdown("""
-Esta demo interactiva muestra la equivalencia matemática entre una **Hopfield Network**
-y el **mecanismo de atención** de los transformers.
+This interactive demo shows the mathematical equivalence between a **Hopfield Network**
+and the **attention mechanism** of transformers.
 
-Ambos lados realizan la misma operación:
-**softmax(similitudes) × valores**
+Both sides perform the same operation:
+**softmax(similarities) × values**
 """)
 
 # ---- Sidebar controls ----
-st.sidebar.header("Parámetros")
+st.sidebar.header("Parameters")
 
-n_patterns = st.sidebar.slider("Número de patrones (memoria)", 3, 10, 5)
-n_neurons = st.sidebar.slider("Dimensión de cada patrón", 4, 20, 8)
-temperature = st.sidebar.slider("Temperatura β (1/temperatura)", 0.1, 5.0, 1.0, 0.1)
-noise = st.sidebar.slider("Ruido en el estado inicial", 0.0, 2.0, 0.5, 0.1)
+n_patterns = st.sidebar.slider("Number of patterns (memory)", 3, 10, 5)
+n_neurons = st.sidebar.slider("Dimension of each pattern", 4, 20, 8)
+temperature = st.sidebar.slider("Temperature β (1/temperature)", 0.1, 5.0, 1.0, 0.1)
+noise = st.sidebar.slider("Noise in the initial state", 0.0, 2.0, 0.5, 0.1)
 
 col1, col2 = st.columns(2)
 
 # ---- Generate data ----
 rng = np.random.RandomState(42)
 
-# Patrones almacenados (memoria Hopfield ≡ Keys/Values)
+# Stored patterns (Hopfield memory ≡ Keys/Values)
 patterns = rng.randn(n_patterns, n_neurons)
 patterns = patterns / np.linalg.norm(patterns, axis=1, keepdims=True)
 
-# Estado inicial (Query noisy)
+# Initial state (noisy Query)
 clean_state = patterns[0].copy()
 noisy_state = clean_state + noise * rng.randn(n_neurons)
 noisy_state = noisy_state / np.linalg.norm(noisy_state)
@@ -50,9 +50,9 @@ energy = -logsumexp  # Modern Hopfield energy
 
 # ---- Left: Hopfield interpretation ----
 with col1:
-    st.subheader("🔵 Como Hopfield Network")
+    st.subheader("🔵 As a Hopfield Network")
     st.markdown("""
-    **Actualización:** $V_{new} = softmax(\\beta \\cdot \\Xi \\cdot V) \\cdot \\Xi$
+    **Update:** $V_{new} = softmax(\\beta \\cdot \\Xi \\cdot V) \\cdot \\Xi$
     """)
 
     # Weights bar chart
@@ -64,9 +64,9 @@ with col1:
         showlegend=False,
     ))
     fig1.update_layout(
-        title=f"Pesos de atención (softmax) — Energía: {energy:.3f}",
-        xaxis_title="Patrón almacenado",
-        yaxis_title="Peso",
+        title=f"Attention weights (softmax) — Energy: {energy:.3f}",
+        xaxis_title="Stored pattern",
+        yaxis_title="Weight",
         height=250,
         margin=dict(l=20, r=20, t=40, b=20),
     )
@@ -76,20 +76,20 @@ with col1:
     state_fig = go.Figure()
     state_fig.add_trace(go.Scatter(
         y=clean_state, mode="lines+markers",
-        name="Patrón limpio (atractor)", line=dict(color="green", width=2),
+        name="Clean pattern (attractor)", line=dict(color="green", width=2),
     ))
     state_fig.add_trace(go.Scatter(
         y=noisy_state, mode="lines+markers",
-        name="Estado inicial (ruidoso)", line=dict(color="gray", width=2, dash="dash"),
+        name="Initial state (noisy)", line=dict(color="gray", width=2, dash="dash"),
     ))
     state_fig.add_trace(go.Scatter(
         y=new_state, mode="lines+markers",
-        name="Estado recuperado (Hopfield)", line=dict(color="royalblue", width=3),
+        name="Recovered state (Hopfield)", line=dict(color="royalblue", width=3),
     ))
     state_fig.update_layout(
-        title="Recuperación del patrón desde estado ruidoso",
-        xaxis_title="Dimensión",
-        yaxis_title="Valor",
+        title="Pattern recovery from a noisy state",
+        xaxis_title="Dimension",
+        yaxis_title="Value",
         height=300,
         margin=dict(l=20, r=20, t=40, b=20),
     )
@@ -97,9 +97,9 @@ with col1:
 
 # ---- Right: Attention interpretation ----
 with col2:
-    st.subheader("🟠 Como Transformer Attention")
+    st.subheader("🟠 As Transformer Attention")
     st.markdown("""
-    **Atención:** $\\text{softmax}\\left(\\frac{Q K^T}{\\sqrt{d_k}}\\right) V$
+    **Attention:** $\\text{softmax}\\left(\\frac{Q K^T}{\\sqrt{d_k}}\\right) V$
     """)
 
     # Similarity heatmap
@@ -117,7 +117,7 @@ with col2:
         colorbar=dict(title="β · Q·K"),
     ))
     heat_fig.update_layout(
-        title="Matriz de similitud Q · K<sup>T</sup> (producto punto escalado)",
+        title="Similarity matrix Q · K<sup>T</sup> (scaled dot product)",
         height=150,
         margin=dict(l=20, r=20, t=40, b=20),
     )
@@ -132,9 +132,9 @@ with col2:
         showlegend=False,
     ))
     attn_fig.update_layout(
-        title="Distribución de atención softmax(Q·K<sup>T</sup>/√d)",
+        title="Attention distribution softmax(Q·K<sup>T</sup>/√d)",
         xaxis_title="Value",
-        yaxis_title="Peso de atención",
+        yaxis_title="Attention weight",
         height=200,
         margin=dict(l=20, r=20, t=40, b=20),
     )
@@ -144,18 +144,18 @@ with col2:
     out_fig = go.Figure()
     out_fig.add_trace(go.Scatter(
         y=new_state, mode="lines+markers",
-        name="Salida = Attention(Q,K,V)",
+        name="Output = Attention(Q,K,V)",
         line=dict(color="darkorange", width=3),
     ))
     out_fig.add_trace(go.Scatter(
         y=clean_state, mode="lines+markers",
-        name="V original (patrón limpio)",
+        name="Original V (clean pattern)",
         line=dict(color="green", width=2),
     ))
     out_fig.update_layout(
-        title="Salida de atención (misma que actualización Hopfield)",
-        xaxis_title="Dimensión",
-        yaxis_title="Valor",
+        title="Attention output (same as the Hopfield update)",
+        xaxis_title="Dimension",
+        yaxis_title="Value",
         height=250,
         margin=dict(l=20, r=20, t=40, b=20),
     )
@@ -163,7 +163,7 @@ with col2:
 
 # ---- Bottom: Equivalence proof ----
 st.divider()
-st.subheader("⚡ La Equivalencia")
+st.subheader("⚡ The Equivalence")
 
 col_eq1, col_eq2, col_eq3 = st.columns(3)
 with col_eq1:
@@ -182,10 +182,10 @@ with col_eq2:
     """)
 with col_eq3:
     st.markdown("""
-    **Misma operación**
+    **Same operation**
     ```
     yᵢ = Σⱼ wⱼ · xⱼ
-    w = softmax(similitudes)
+    w = softmax(similarities)
     ```
     """)
 
@@ -196,10 +196,10 @@ attention_entropy = -np.sum(attn_weights * np.log(attn_weights + 1e-10))
 st.divider()
 col_m1, col_m2, col_m3 = st.columns(3)
 with col_m1:
-    st.metric("Error de recuperación vs patrón limpio", f"{recovery_error:.4f}")
+    st.metric("Recovery error vs clean pattern", f"{recovery_error:.4f}")
 with col_m2:
-    st.metric("Entropía de atención", f"{attention_entropy:.3f}")
+    st.metric("Attention entropy", f"{attention_entropy:.3f}")
 with col_m3:
-    st.metric("Temperatura β", f"{temperature:.1f}")
+    st.metric("Temperature β", f"{temperature:.1f}")
 
-st.caption("Cuando la entropía es baja → atención enfocada en un patrón | Cuando es alta → atención difusa entre varios patrones")
+st.caption("When entropy is low → attention focused on one pattern | When it's high → attention diffuse across several patterns")

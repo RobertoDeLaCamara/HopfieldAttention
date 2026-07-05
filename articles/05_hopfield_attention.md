@@ -1,121 +1,121 @@
-# 5. La Conexión: Hopfield Networks y Attention son la Misma Operación
+# 5. The Connection: Hopfield Networks and Attention Are the Same Operation
 
-> *Este capítulo es el núcleo de toda la serie. La afirmación es directa: el mecanismo de atención en los Transformers es, matemáticamente, una actualización de Hopfield Network con softmax como función de activación.*
+> *This chapter is the core of the whole series. The claim is direct: the attention mechanism in Transformers is, mathematically, a Hopfield Network update with softmax as the activation function.*
 
-## La Equivalencia Formal
+## The Formal Equivalence
 
-Empecemos con la fórmula de actualización de una Hopfield Network moderna (continua) y la fórmula de atención de un Transformer, una al lado de la otra:
+Let's start with the update formula of a modern (continuous) Hopfield Network and the attention formula of a Transformer, side by side:
 
-**Actualización Hopfield (versión continua):**
+**Hopfield update (continuous version):**
 
 $$\mathbf{V}^{new} = \text{softmax}\left(\beta \cdot \Xi \cdot \mathbf{V}\right) \cdot \Xi$$
 
-Donde:
-- $\Xi$ es la matriz de patrones almacenados (memoria)
-- $\mathbf{V}$ es el estado actual de las neuronas
-- $\beta$ es la inversa de la temperatura
+Where:
+- $\Xi$ is the matrix of stored patterns (memory)
+- $\mathbf{V}$ is the current state of the neurons
+- $\beta$ is the inverse temperature
 
-**Atención Transformer (scaled dot-product):**
+**Transformer attention (scaled dot-product):**
 
 $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{Q \cdot K^T}{\sqrt{d_k}}\right) \cdot V$$
 
-Donde:
-- $Q$ son las queries
-- $K$ son las keys
-- $V$ son los values
-- $\sqrt{d_k}$ es el factor de escala
+Where:
+- $Q$ are the queries
+- $K$ are the keys
+- $V$ are the values
+- $\sqrt{d_k}$ is the scaling factor
 
-La correspondencia es directa:
+The correspondence is direct:
 
-| Hopfield | Transformer Atención | Significado |
+| Hopfield | Transformer Attention | Meaning |
 |----------|---------------------|-------------|
-| Estado actual $\mathbf{V}$ | Query $Q$ | Lo que estamos procesando |
-| Patrones $\Xi$ | Keys $K^T$ | Lo que sabemos / la memoria |
-| Patrones $\Xi$ (misma matriz) | Values $V$ | Lo que recuperamos |
-| Temperatura $\beta$ | Escala $1/\sqrt{d_k}$ | Qué tan aguda es la atención |
-| softmax($\beta \cdot \Xi \cdot \mathbf{V}$) $\cdot \Xi$ | softmax($Q \cdot K^T / \sqrt{d_k}$) $\cdot V$ | Recuperación ponderada |
+| Current state $\mathbf{V}$ | Query $Q$ | What we're processing |
+| Patterns $\Xi$ | Keys $K^T$ | What we know / the memory |
+| Patterns $\Xi$ (same matrix) | Values $V$ | What we retrieve |
+| Temperature $\beta$ | Scale $1/\sqrt{d_k}$ | How sharp the attention is |
+| softmax($\beta \cdot \Xi \cdot \mathbf{V}$) $\cdot \Xi$ | softmax($Q \cdot K^T / \sqrt{d_k}$) $\cdot V$ | Weighted retrieval |
 
-En una Hopfield Network clásica, los patrones almacenados $\Xi$ sirven tanto como **claves** (para calcular similitud) como **valores** (para recuperar contenido). En un Transformer, las keys y values se derivan de la misma entrada pero se proyectan a espacios distintos mediante matrices de peso aprendidas $W_K$ y $W_V$.
+In a classic Hopfield Network, the stored patterns $\Xi$ serve both as **keys** (to compute similarity) and as **values** (to retrieve content). In a Transformer, keys and values are derived from the same input but projected into different spaces via learned weight matrices $W_K$ and $W_V$.
 
-## La Evolución de la Idea
+## The Evolution of the Idea
 
-### Hopfield Original (1982)
-La red converge a un atractor mediante actualizaciones asíncronas binarias. La energía siempre decrece.
+### Original Hopfield (1982)
+The network converges to an attractor through asynchronous binary updates. Energy always decreases.
 
-### Hopfield Continua (1984)
-Hopfield extiende el modelo a neuronas con valores continuos (sigmoides), permitiendo gradientes y dinámicas más ricas.
+### Continuous Hopfield (1984)
+Hopfield extends the model to continuous-valued neurons (sigmoids), enabling gradients and richer dynamics.
 
 ### Modern Hopfield (Dense Associative Memory, 2016-2017)
-Demircigil et al. (2017) demostraron que reemplazar la función de energía cuadrática con una exponencial permite **capacidad exponencial**:
+Demircigil et al. (2017) showed that replacing the quadratic energy function with an exponential one enables **exponential capacity**:
 
 $$E = -\sum_{\mu} \exp(\beta \cdot \xi^{\mu} \cdot \mathbf{V})$$
 
-La regla de actualización correspondiente es:
+The corresponding update rule is:
 
 $$\mathbf{V}^{new} = \sum_{\mu} \text{softmax}_\mu(\beta \cdot \xi^{\mu} \cdot \mathbf{V}) \cdot \xi^{\mu}$$
 
 ### Transformer Attention (2017)
-"Attention is All You Need" introduce el mecanismo de atención escalada:
+"Attention is All You Need" introduces the scaled attention mechanism:
 
 $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
 
-Que es matemáticamente equivalente a la actualización de una Modern Hopfield Network donde:
-- La "memoria" está en las keys y values
-- La "recuperación" es una suma ponderada por softmax
-- Se aprende a proyectar queries, keys y values desde la misma entrada
+Which is mathematically equivalent to the update of a Modern Hopfield Network where:
+- The "memory" lives in the keys and values
+- The "retrieval" is a softmax-weighted sum
+- Queries, keys and values are learned as projections from the same input
 
-### La Conexión Definitiva: Ramsauer et al. (2021)
+### The Definitive Connection: Ramsauer et al. (2021)
 
-El artículo "Hopfield Networks is All You Need" de Ramsauer, Schäfl et al. (2021) estableció formalmente la equivalencia:
+The paper "Hopfield Networks is All You Need" by Ramsauer, Schäfl et al. (2021) formally established the equivalence:
 
-> **Una capa de atención con softmax es idéntica a un paso de actualización de una Modern Hopfield Network continua.**
+> **An attention layer with softmax is identical to one update step of a continuous Modern Hopfield Network.**
 
-Más aún, demostraron que:
-1. La energía de Hopfield tiene mínimos en cada patrón almacenado
-2. La convergencia a un atractor ocurre en **una sola iteración** cuando se usa softmax
-3. La atención multi-cabeza corresponde a **múltiples Hopfield Networks independientes** operando en paralelo
-4. El factor de escala $1/\sqrt{d_k}$ corresponde al inverso de la temperatura
+Moreover, they showed that:
+1. Hopfield energy has minima at each stored pattern
+2. Convergence to an attractor happens in **a single iteration** when softmax is used
+3. Multi-head attention corresponds to **multiple independent Hopfield Networks** operating in parallel
+4. The scaling factor $1/\sqrt{d_k}$ corresponds to the inverse temperature
 
-## Implicaciones
+## Implications
 
-### La atención ES una memoria asociativa
+### Attention IS an associative memory
 
-Los transformers no "atienden" — **recuperan contenido de una memoria mediante una actualización Hopfield**. La capa de atención es un sistema dinámico que converge a un punto fijo.
+Transformers don't "attend" — **they retrieve content from a memory via a Hopfield update**. The attention layer is a dynamical system that converges to a fixed point.
 
-### Energía como herramienta de análisis
+### Energy as an analysis tool
 
-La teoría de Hopfield proporciona un marco de energía para analizar el comportamiento de los transformers:
-- **Mínimos locales**: ¿a qué patrón converge la atención?
-- **Capacidad**: ¿cuántos patrones puede almacenar una memoria de atención?
-- **Estabilidad**: ¿bajo qué condiciones la atención oscila o diverge?
+Hopfield theory provides an energy framework for analyzing transformer behavior:
+- **Local minima**: which pattern does attention converge to?
+- **Capacity**: how many patterns can an attention memory store?
+- **Stability**: under what conditions does attention oscillate or diverge?
 
-### Puerta a nuevas arquitecturas
+### A gateway to new architectures
 
-Si atención = actualización Hopfield, entonces podemos:
-- Diseñar nuevas funciones de energía para nuevos comportamientos de atención
-- Usar temperaturas adaptativas para controlar la "agudeza" de la atención
-- Explorar memorias jerárquicas: Hopfield networks donde los patrones son a su vez representaciones
+If attention = Hopfield update, then we can:
+- Design new energy functions for new attention behaviors
+- Use adaptive temperatures to control the "sharpness" of attention
+- Explore hierarchical memories: Hopfield networks whose patterns are themselves representations
 
-## Visualización de la Equivalencia
+## Visualizing the Equivalence
 
 ```
 Hopfield:         V_{t+1} = softmax(β · Ξ · V_t) · Ξ
 
 Transformer:  Attention(Q, K, V) = softmax(Q · K^T / √d) · V
 
-Misma estructura: softmax( · ) · 
+Same structure: softmax( · ) · 
 ```
 
-El dashboard interactivo de este proyecto te permite explorar esta equivalencia en tiempo real. Puedes ajustar la temperatura, los patrones almacenados, y ver cómo la energía de Hopfield y la distribución de atención evolucionan de forma idéntica.
+This project's interactive dashboard lets you explore this equivalence in real time. You can adjust the temperature, the stored patterns, and watch how the Hopfield energy and the attention distribution evolve identically.
 
-## La Conexión Personal
+## The Personal Connection
 
-Esta equivalencia cierra un círculo de 25 años.
+This equivalence closes a 25-year loop.
 
-En 1998, implementé una Hopfield Network para shortest path. La energía convergía, pero las limitaciones prácticas eran frustrantes. En 2025, el mecanismo de atención que impulsa los modelos más avanzados de inteligencia artificial es — matemáticamente — el mismo tipo de actualización.
+In 1998, I implemented a Hopfield Network for shortest path. The energy converged, but the practical limitations were frustrating. In 2025, the attention mechanism powering the most advanced AI models is — mathematically — the same kind of update.
 
-No es que "atención esté inspirada en Hopfield". Es que **atención ES Hopfield**, con mejores no-linealidades, matrices de proyección aprendidas, y escalabilidad.
+It's not that "attention is inspired by Hopfield." It's that **attention IS Hopfield**, with better non-linearities, learned projection matrices, and scalability.
 
 ---
 
-**Siguiente: [Capítulo 6 — Subspace Attention: De la Atención Estándar al Espacio Subdimensional](06_subspace_attention.md)**
+**Next: [Chapter 6 — Subspace Attention: From Standard Attention to Subdimensional Space](06_subspace_attention.md)**

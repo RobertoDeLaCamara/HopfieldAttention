@@ -1,29 +1,29 @@
-# 6. Subspace Attention: De la Atención Estándar al Espacio Subdimensional
+# 6. Subspace Attention: From Standard Attention to Subdimensional Space
 
-> *Una vez establecida la equivalencia entre Hopfield Networks y Attention, surge la pregunta: ¿qué otras formas de atención — o de actualización Hopfield — podemos diseñar? El AdvancedHopfieldModel de mi solver de shortest path apunta en una dirección: atención en subespacios.*
+> *Once the equivalence between Hopfield Networks and Attention is established, a question arises: what other forms of attention — or Hopfield update — can we design? The AdvancedHopfieldModel from my shortest-path solver points in one direction: attention over subspaces.*
 
-## El Problema de Escalabilidad
+## The Scalability Problem
 
-La atención estándar tiene complejidad $O(n^2)$ en el número de tokens. Para secuencias largas, esto es prohibitivo. Pero hay otro problema más sutil: en un grafo de 5000 nodos, la mayoría de las aristas no existen (el grafo es sparse). La matriz de adyacencia completa $n \times n$ desperdicia memoria y computación.
+Standard attention has $O(n^2)$ complexity in the number of tokens. For long sequences, this is prohibitive. But there's a subtler problem: in a 5000-node graph, most edges don't exist (the graph is sparse). The full $n \times n$ adjacency matrix wastes memory and computation.
 
-Con Hopfield SPP, abordé este problema con **tensores sparse**: solo almacenar las aristas existentes ($E$ en lugar de $n^2$), reduciendo la memoria de $O(n^2)$ a $O(E)$.
+With Hopfield SPP, I addressed this with **sparse tensors**: only storing the edges that exist ($E$ instead of $n^2$), reducing memory from $O(n^2)$ to $O(E)$.
 
-## Subespacios en Hopfield SPP
+## Subspaces in Hopfield SPP
 
-El `AdvancedHopfieldModel` en mi solver de shortest path implementa varias técnicas que tienen paralelos directos en atención:
+The `AdvancedHopfieldModel` in my shortest-path solver implements several techniques that have direct parallels in attention:
 
-### Tensores Sparse
+### Sparse Tensors
 
 ```python
-# Solo almacenar aristas existentes en lugar de matriz completa
-# Memoria: O(E) en lugar de O(n²)
+# Only store existing edges instead of the full matrix
+# Memory: O(E) instead of O(n²)
 sparse_indices = tf.constant(edge_list, dtype=tf.int64)  # shape (E, 2)
 sparse_values = tf.Variable(initial_values, shape=(E,))
 ```
 
-### Mecanismo de Atención
+### Attention Mechanism
 
-El modelo avanzado incluye un mecanismo de atención que pondera la influencia de nodos vecinos según su relevancia:
+The advanced model includes an attention mechanism that weighs the influence of neighboring nodes by their relevance:
 
 ```python
 attention_weights = tf.nn.softmax(
@@ -32,20 +32,20 @@ attention_weights = tf.nn.softmax(
 update = tf.reduce_sum(attention_weights * neighbor_values, axis=0)
 ```
 
-### Hiperparámetros Adaptativos
+### Adaptive Hyperparameters
 
-En lugar de temperatura fija, el modelo ajusta dinámicamente:
+Instead of a fixed temperature, the model dynamically adjusts:
 
-- **Temperatura**: controla la nitidez de la atención/activación
-- **Tasa de aprendizaje**: se adapta según la convergencia
-- **Número de reinicios**: se incrementa para problemas difíciles
+- **Temperature**: controls the sharpness of attention/activation
+- **Learning rate**: adapts based on convergence
+- **Number of restarts**: increases for harder problems
 
-### Beam Search para Extracción
+### Beam Search for Extraction
 
-El modelo avanzado usa beam search (similar a decoding en transformers) para extraer la ruta óptima de la matriz de activación:
+The advanced model uses beam search (similar to decoding in transformers) to extract the optimal path from the activation matrix:
 
 ```python
-# Beam search: mantener top-k caminos parciales
+# Beam search: keep the top-k partial paths
 beam = [(source, [source], 0.0)]
 for step in range(max_steps):
     candidates = []
@@ -55,28 +55,28 @@ for step in range(max_steps):
     beam = sorted(candidates, key=lambda x: x[2])[:beam_width]
 ```
 
-## De Hopfield SPP a Atención en Subespacios
+## From Hopfield SPP to Subspace Attention
 
-Las técnicas que implementé para escalar Hopfield a grafos grandes son directamente aplicables a atención en transformers:
+The techniques I implemented to scale Hopfield to large graphs are directly applicable to attention in transformers:
 
-| Técnica Hopfield SPP | Equivalente en Atención |
+| Hopfield SPP Technique | Attention Equivalent |
 |---------------------|------------------------|
-| Tensores sparse | Atención sparse (Reformer, BigBird) |
-| Atención local por vecindad | Atención de ventana deslizante |
-| Beam search | Decoding autorregresivo |
-| Hiperparámetros adaptativos | Temperature scaling en inference |
-| Energía por subgrafo | Atención por parches (patch-based) |
+| Sparse tensors | Sparse attention (Reformer, BigBird) |
+| Local neighborhood attention | Sliding-window attention |
+| Beam search | Autoregressive decoding |
+| Adaptive hyperparameters | Temperature scaling at inference |
+| Per-subgraph energy | Patch-based attention |
 
-## Subspace Attention como Principio General
+## Subspace Attention as a General Principle
 
-La idea central que emerge es: **no toda atención necesita operar en el espacio completo**. Podemos restringir la atención a subespacios relevantes:
+The central idea that emerges is: **not all attention needs to operate over the full space**. We can restrict attention to relevant subspaces:
 
-- **Subespacio de tokens**: atención local, ventanas, vecindades
-- **Subespacio de características**: atención factorizada (low-rank), proyecciones
-- **Subespacio temporal**: atención en ventanas de tiempo, memoria comprimida
+- **Token subspace**: local attention, windows, neighborhoods
+- **Feature subspace**: factorized (low-rank) attention, projections
+- **Temporal subspace**: attention over time windows, compressed memory
 
-Cada una de estas es una Hopfield Network que opera en un subespacio del espacio completo. Y cada una hereda las propiedades de convergencia y estabilidad de la teoría de Hopfield.
+Each of these is a Hopfield Network operating in a subspace of the full space. And each inherits the convergence and stability properties of Hopfield theory.
 
 ---
 
-**Siguiente: [Capítulo 7 — Hacia el Futuro: Hopfield Layers en Deep Learning Moderno](07_future.md)**
+**Next: [Chapter 7 — Looking Ahead: Hopfield Layers in Modern Deep Learning](07_future.md)**

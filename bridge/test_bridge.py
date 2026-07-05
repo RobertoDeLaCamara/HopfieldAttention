@@ -10,7 +10,7 @@ def layer():
 
 class TestHopfieldAttention:
     def test_equivalence(self, layer):
-        """Hopfield update == Attention forward (mismos params)."""
+        """Hopfield update == Attention forward (same params)."""
         state = np.random.randn(16).astype(np.float32)
         state /= np.linalg.norm(state)
         result = layer.compare(state)
@@ -18,13 +18,13 @@ class TestHopfieldAttention:
         assert result["difference_norm"] < 1e-6
 
     def test_output_shape(self, layer):
-        """La salida tiene la misma dimensionalidad que la entrada."""
+        """The output has the same dimensionality as the input."""
         state = np.random.randn(16).astype(np.float32)
         output = layer.hopfield_update(state)
         assert output.shape == (16,)
 
     def test_energy_decreases(self, layer):
-        """La energía no aumenta monotónicamente, pero converge."""
+        """Energy does not increase monotonically, but it converges."""
         state = np.random.randn(16).astype(np.float32)
         state /= np.linalg.norm(state)
         for _ in range(30):
@@ -32,13 +32,13 @@ class TestHopfieldAttention:
             if np.linalg.norm(new_state - state) < 1e-5:
                 break
             state = new_state
-        # Convergió a un punto estable
+        # Converged to a stable point
         e_final = layer.energy(state)
         e_next = layer.energy(layer.hopfield_update(state))
         assert abs(e_next - e_final) < 1e-3
 
     def test_temperature_effect(self):
-        """β alto → atención más enfocada (menor entropía)."""
+        """High β → more focused attention (lower entropy)."""
         state = np.random.randn(8).astype(np.float32)
         state /= np.linalg.norm(state)
 
@@ -54,7 +54,7 @@ class TestHopfieldAttention:
         assert entropies[0] > entropies[1]
 
     def test_energy_with_noise(self, layer):
-        """Un estado ruidoso tiene mayor energía que el patrón limpio."""
+        """A noisy state has higher energy than the clean pattern."""
         store_vec = layer.store[0].copy()
         noisy = store_vec + 0.5 * np.random.randn(16)
         noisy /= np.linalg.norm(noisy)
@@ -64,7 +64,7 @@ class TestHopfieldAttention:
         assert e_noisy >= e_clean - 1e-6
 
     def test_convergence_to_attractor(self, layer):
-        """Repetir actualizaciones converge a un atractor (energía estable)."""
+        """Repeated updates converge to an attractor (stable energy)."""
         state = np.random.randn(16).astype(np.float32)
         state /= np.linalg.norm(state)
 
@@ -74,13 +74,13 @@ class TestHopfieldAttention:
                 break
             state = new_state
 
-        # Energía estable tras convergencia
+        # Energy stable after convergence
         e_final = layer.energy(state)
         e_next = layer.energy(layer.hopfield_update(state))
         assert abs(e_next - e_final) < 1e-4
 
     def test_attention_as_hopfield(self, layer):
-        """attention_as_hopfield debe dar el mismo resultado que hopfield_update."""
+        """attention_as_hopfield must give the same result as hopfield_update."""
         state = np.random.randn(16).astype(np.float32)
         state /= np.linalg.norm(state)
 

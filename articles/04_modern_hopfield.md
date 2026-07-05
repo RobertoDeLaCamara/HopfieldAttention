@@ -1,68 +1,68 @@
-# 4. Modern Hopfield Networks: La Revolución Silenciosa
+# 4. Modern Hopfield Networks: The Quiet Revolution
 
-> *Entre 2016 y 2021, una serie de descubrimientos transformaron las Hopfield Networks de una curiosidad histórica a un marco teórico para entender los transformers. La mayoría del mundo del deep learning no lo notó.*
+> *Between 2016 and 2021, a series of discoveries transformed Hopfield Networks from a historical curiosity into a theoretical framework for understanding transformers. Most of the deep learning world didn't notice.*
 
 ## Dense Associative Memories (Krotov & Hopfield, 2016)
 
-El primer avance vino de los propios Hopfield y su colaborador Krotov. Propusieron reemplazar la función de energía cuadrática por una función más general:
+The first breakthrough came from Hopfield himself and his collaborator Krotov. They proposed replacing the quadratic energy function with a more general one:
 
 $$E = -\sum_{\mu} F\left(\sum_i \xi_i^{\mu} V_i\right)$$
 
-Donde $F$ es una función de interacción. Con $F(x) = x^2$, recuperamos la Hopfield original. Con $F(x) = \exp(x)$, obtenemos propiedades cualitativamente diferentes.
+Where $F$ is an interaction function. With $F(x) = x^2$, we recover the original Hopfield network. With $F(x) = \exp(x)$, we get qualitatively different properties.
 
-## Capacidad Exponencial (Demircigil et al., 2017)
+## Exponential Capacity (Demircigil et al., 2017)
 
-El artículo de Demircigil demostró que usando una función de energía exponencial:
+Demircigil's paper showed that using an exponential energy function:
 
 $$E = -\sum_{\mu} \exp\left(\beta \cdot \xi^{\mu} \cdot \mathbf{V}\right)$$
 
-La capacidad de almacenamiento crece de **lineal a exponencial** en el número de neuronas:
+Storage capacity grows from **linear to exponential** in the number of neurons:
 
 $$C_{\text{original}} \approx 0.15 \cdot n$$
 
-$$C_{\text{moderna}} \approx \exp(n)$$
+$$C_{\text{modern}} \approx \exp(n)$$
 
-Esto es un salto cualitativo: de almacenar decenas de patrones a poder almacenar una cantidad exponencial.
+This is a qualitative leap: from storing dozens of patterns to being able to store an exponential number.
 
-La regla de actualización resultante es:
+The resulting update rule is:
 
 $$\mathbf{V}^{new} = \sum_{\mu} \frac{\exp\left(\beta \cdot \xi^{\mu} \cdot \mathbf{V}\right)}{\sum_{\nu} \exp\left(\beta \cdot \xi^{\nu} \cdot \mathbf{V}\right)} \cdot \xi^{\mu}$$
 
-Que no es otra cosa que **softmax aplicado a los productos punto entre el estado actual y los patrones**, seguido de una suma ponderada.
+Which is nothing other than **softmax applied to the dot products between the current state and the patterns**, followed by a weighted sum.
 
-## La Relación con Atención
+## The Relationship to Attention
 
-Si sustituimos $\xi^{\mu}$ por keys $K$ y el estado $\mathbf{V}$ por queries $Q$, obtenemos:
+If we substitute keys $K$ for $\xi^{\mu}$ and queries $Q$ for the state $\mathbf{V}$, we get:
 
 $$\text{softmax}\left(\beta \cdot Q \cdot K^T\right) \cdot V$$
 
-Que es la fórmula de atención. La conexión es directa y exacta.
+Which is the attention formula. The connection is direct and exact.
 
 ## Hopfield Networks is All You Need (Ramsauer et al., 2021)
 
-El artículo de Ramsauer, Schäfl y colaboradores estableció formalmente:
+The paper by Ramsauer, Schäfl, and collaborators formally established:
 
-1. **Equivalencia completa**: Una capa de atención softmax es un paso de una Modern Hopfield Network continua
-2. **Convergencia en un paso**: Con softmax, la red converge al atractor en una sola iteración — no requiere múltiples pasos como la Hopfield clásica
-3. **Multi-head es multi-Hopfield**: Cada cabeza de atención es una Hopfield Network independiente
-4. **Factor de escala como temperatura**: $1/\sqrt{d_k}$ controla la nitidez de la recuperación
+1. **Full equivalence**: A softmax attention layer is one step of a continuous Modern Hopfield Network
+2. **One-step convergence**: With softmax, the network converges to the attractor in a single iteration — it doesn't need multiple steps like the classic Hopfield network
+3. **Multi-head is multi-Hopfield**: Each attention head is an independent Hopfield Network
+4. **Scale factor as temperature**: $1/\sqrt{d_k}$ controls the sharpness of retrieval
 
-## Energía Conjunta para Transformers
+## Joint Energy for Transformers
 
-Ramsauer et al. demostraron que se puede definir una función de energía para un transformer completo:
+Ramsauer et al. showed that an energy function can be defined for a full transformer:
 
-$$E = -\text{lse}\left(\beta, QK^T\right) + \frac{1}{2\beta} \sum_i ||V_i||^2 + \text{términos de regularización}$$
+$$E = -\text{lse}\left(\beta, QK^T\right) + \frac{1}{2\beta} \sum_i ||V_i||^2 + \text{regularization terms}$$
 
-Donde $\text{lse}$ es el LogSumExp. La minimización de esta energía produce la dinámica de atención del transformer.
+Where $\text{lse}$ is the LogSumExp. Minimizing this energy produces the transformer's attention dynamics.
 
-## Por Qué Esto Importa
+## Why This Matters
 
-Antes de estos resultados, los transformers eran una arquitectura que funcionaba, pero sin una teoría unificada de por qué. La conexión con Hopfield Networks proporciona:
+Before these results, transformers were an architecture that worked, but without a unified theory of why. The connection to Hopfield Networks provides:
 
-- **Un marco teórico**: los transformers no son una caja negra — son sistemas dinámicos con una función de energía
-- **Garantías de convergencia**: condiciones bajo las cuales la atención converge a estados estables
-- **Nuevas direcciones de investigación**: funciones de energía alternativas producen nuevos mecanismos de atención
+- **A theoretical framework**: transformers aren't a black box — they're dynamical systems with an energy function
+- **Convergence guarantees**: conditions under which attention converges to stable states
+- **New research directions**: alternative energy functions produce new attention mechanisms
 
 ---
 
-**Siguiente: [Capítulo 5 — La Conexión: Hopfield Networks y Attention son la Misma Operación](05_hopfield_attention.md)**
+**Next: [Chapter 5 — The Connection: Hopfield Networks and Attention Are the Same Operation](05_hopfield_attention.md)**

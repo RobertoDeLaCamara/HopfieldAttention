@@ -7,7 +7,7 @@ sdk: streamlit
 sdk_version: 1.42.0
 app_file: dashboard/app.py
 pinned: false
-short_description: "De Hopfield Networks a Transformers — la conexión interactiva"
+short_description: "From Hopfield Networks to Transformers — the interactive connection"
 tags:
   - hopfield-networks
   - transformers
@@ -19,4 +19,4 @@ license: mit
 
 # HopfieldAttention
 
-Ver el README del [repositorio principal](https://github.com/RobertoDeLaCamara/HopfieldAttention).
+See the README of the [main repository](https://github.com/RobertoDeLaCamara/HopfieldAttention).

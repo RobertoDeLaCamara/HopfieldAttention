@@ -7,7 +7,7 @@ sdk: streamlit
 sdk_version: 1.42.0
 app_file: dashboard/app.py
 pinned: false
-short_description: "De Hopfield Networks a Transformers — la conexión interactiva"
+short_description: "From Hopfield Networks to Transformers — the interactive connection"
 tags:
   - hopfield-networks
   - transformers
@@ -46,13 +46,13 @@ Both compute a softmax-weighted sum over a set of stored vectors. The correspond
 
 | # | Title | Topic |
 |---|---|---|
-| 1 | [La Hopfield Original](articles/01_hopfield_original.md) | Energy function, attractors, associative memory |
-| 2 | [Mi tesis de 1998](articles/02_thesis_1998.md) | Hopfield for Shortest Path Problem |
-| 3 | [Siete correcciones](articles/03_seven_fixes.md) | Why classical Hopfield fails at optimization |
+| 1 | [The Original Hopfield](articles/01_hopfield_original.md) | Energy function, attractors, associative memory |
+| 2 | [My 1998 Thesis](articles/02_thesis_1998.md) | Hopfield for Shortest Path Problem |
+| 3 | [Seven Fixes](articles/03_seven_fixes.md) | Why classical Hopfield fails at optimization |
 | 4 | [Modern Hopfield](articles/04_modern_hopfield.md) | Exponential capacity, continuous values |
-| 5 | [La Conexión](articles/05_hopfield_attention.md) | **The bridge: Hopfield IS attention** |
+| 5 | [The Connection](articles/05_hopfield_attention.md) | **The bridge: Hopfield IS attention** |
 | 6 | [Subspace Attention](articles/06_subspace_attention.md) | From standard to subspace attention |
-| 7 | [Hacia el Futuro](articles/07_future.md) | Hopfield layers in modern deep learning |
+| 7 | [Looking Ahead](articles/07_future.md) | Hopfield layers in modern deep learning |
 
 ### Bridge Code
 

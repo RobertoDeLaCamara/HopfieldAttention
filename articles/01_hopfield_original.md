@@ -1,44 +1,44 @@
-# 1. La Hopfield Original: Energía, Estabilidad y Puntos Fijos
+# 1. The Original Hopfield Network: Energy, Stability, and Fixed Points
 
-> *Antes de que el deep learning fuera deep, antes de que "atención" fuera un concepto en machine learning, existía una red recurrente simple que convergía a puntos fijos minimizando una función de energía.*
+> *Before deep learning was deep, before "attention" was a concept in machine learning, there was a simple recurrent network that converged to fixed points by minimizing an energy function.*
 
-## El Modelo
+## The Model
 
-En 1982, John Hopfield publicó un artículo que revitalizó las redes neuronales en un momento en que el campo estaba estancado. Su idea era elegante: una red de neuronas binarias conectadas entre sí que evolucionaba hacia estados estables — atractores — minimizando una función de energía.
+In 1982, John Hopfield published a paper that revitalized neural networks at a moment when the field was stagnant. His idea was elegant: a network of binary neurons, all connected to each other, that evolved toward stable states — attractors — by minimizing an energy function.
 
-Una Hopfield Network es una red recurrente totalmente conectada donde cada neurona está conectada a todas las demás (pero no a sí misma). Las neuronas son binarias (activadas o desactivadas) y la red actualiza su estado de forma asíncrona, una neurona a la vez.
+A Hopfield Network is a fully connected recurrent network where every neuron is connected to every other neuron (but not to itself). The neurons are binary (on or off), and the network updates its state asynchronously, one neuron at a time.
 
-## La Función de Energía
+## The Energy Function
 
-La contribución clave de Hopfield fue definir una función de energía (o Lyapunov) que siempre decrece con cada actualización:
+Hopfield's key contribution was defining an energy (or Lyapunov) function that always decreases with every update:
 
 $$E = -\frac{1}{2} \sum_{i,j} w_{ij} s_i s_j + \sum_i \theta_i s_i$$
 
-Donde:
-- $w_{ij}$ es el peso de la conexión entre las neuronas $i$ y $j$
-- $s_i$ es el estado (0 o 1) de la neurona $i$
-- $\theta_i$ es el umbral de la neurona $i$
+Where:
+- $w_{ij}$ is the weight of the connection between neurons $i$ and $j$
+- $s_i$ is the state (0 or 1) of neuron $i$
+- $\theta_i$ is the threshold of neuron $i$
 
-Cada actualización de estado garantiza que la energía nunca aumente. Como la energía está acotada inferiormente, la red converge inevitablemente a un mínimo local — un atractor.
+Every state update guarantees that the energy never increases. Since the energy is bounded below, the network inevitably converges to a local minimum — an attractor.
 
-## Atractores como Memoria
+## Attractors as Memory
 
-Las Hopfield Networks se popularizaron como **memorias asociativas**: se almacenan patrones como mínimos de energía, y la red recupera el patrón completo a partir de una versión parcial o ruidosa.
+Hopfield Networks became popular as **associative memories**: patterns are stored as energy minima, and the network recovers the full pattern from a partial or noisy version.
 
-Si entrenamos la red con imágenes de dígitos, cada dígito se convierte en un atractor. Al presentar un dígito ruidoso, la red converge al patrón más cercano — "recupera" la imagen limpia.
+If we train the network on images of digits, each digit becomes an attractor. When presented with a noisy digit, the network converges to the nearest pattern — it "recovers" the clean image.
 
-## Dos Limitaciones Fundamentales
+## Two Fundamental Limitations
 
-1. **Capacidad limitada**: Una Hopfield Network con $n$ neuronas puede almacenar aproximadamente $0.15n$ patrones antes de que los atractores espurios comiencen a dominar.
+1. **Limited capacity**: A Hopfield Network with $n$ neurons can store roughly $0.15n$ patterns before spurious attractors start to dominate.
 
-2. **Tendencia a mínimos espurios**: La red converge al *mínimo local* más cercano, que no siempre corresponde a un patrón almacenado. Especialmente problemático cuando se usa para optimización combinatoria, como veremos en el siguiente capítulo.
+2. **Tendency toward spurious minima**: The network converges to the nearest *local minimum*, which doesn't always correspond to a stored pattern. This is especially problematic when using it for combinatorial optimization, as we'll see in the next chapter.
 
-## Por Qué Esto Importa
+## Why This Matters
 
-El mecanismo de actualización de Hopfield — calcular una suma ponderada de entradas y aplicar una no-linealidad — es estructuralmente idéntico al mecanismo de atención que define los Transformers. La diferencia está en la no-linealidad (signo/sigmoides vs. softmax) y en cómo se estructuran las conexiones.
+The Hopfield update mechanism — computing a weighted sum of inputs and applying a nonlinearity — is structurally identical to the attention mechanism that defines Transformers. The difference lies in the nonlinearity (sign/sigmoid vs. softmax) and in how the connections are structured.
 
-Pero estamos adelantando la historia. Primero, veamos cómo aplicar Hopfield a la optimización combinatoria.
+But we're getting ahead of the story. First, let's look at how Hopfield networks were applied to combinatorial optimization.
 
 ---
 
-**Siguiente: [Capítulo 2 — Mi tesis de 1998: Hopfield para el Shortest Path Problem](02_thesis_1998.md)**
+**Next: [Chapter 2 — My 1998 Thesis: Hopfield for the Shortest Path Problem](02_thesis_1998.md)**
